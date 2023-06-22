@@ -14,11 +14,13 @@ import {
     Switch,
     TextField
 } from '@mui/material';
+import { generateExcelSheet } from "@/utils/generateExcelSheet";
 
 export interface FormBlueprint {
     title: string;
     fields: Array<ExtendedFormField>;
     submissionLimit?: Date;
+    user_id: number;
 }
 export interface FormField {
     type: 'text' | 'email' | 'checkbox' | 'radio' | 'select' | 'switch' | 'slider' | 'rating';
@@ -50,6 +52,7 @@ function useFormGenerator(jsonBlueprint: FormBlueprint): FormGeneratorResult {
         event.preventDefault();
         // Handle form submission
         console.log('Form values:', formValues);
+        generateExcelSheet(formValues);
     };
 
     const formElements = jsonBlueprint.fields.map((field, index) => {

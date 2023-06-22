@@ -1,13 +1,15 @@
 import {useState} from "react";
 import {ExtendedFormField, FormBlueprint} from "@/utils/FormGenerator";
-import {Button, Card, MenuItem, Select, TextField, CardContent, CardActions} from "@mui/material";
+import {Button, Card, MenuItem, Select, TextField, CardContent, CardActions, Snackbar} from "@mui/material";
+import {pb} from "@/utils/PocketBase";
 
 function FormCreator() {
     const [formBlueprints, setFormBlueprints] = useState<FormBlueprint[]>([]);
     const [formTitle, setFormTitle] = useState('');
     const [formFields, setFormFields] = useState<ExtendedFormField[]>([]);
     const [submissionLimit, setSubmissionLimit] = useState<Date | undefined>();
-
+    const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState('');
     const handleAddQuestion = () => {
         if (formFields.length < 10) {
             setFormFields([...formFields, {type: 'text', label: '', name: ''}]);
@@ -25,21 +27,33 @@ function FormCreator() {
         updatedFields[index].type = fieldType;
         setFormFields(updatedFields);
     };
-    const handleFormSubmit = () => {
+    const handleFormSubmit = async () => {
+        const user_pb = await JSON.parse(localStorage.getItem('user') || '{}')
         const newFormBlueprint: FormBlueprint = {
             title: formTitle,
             fields: formFields,
             submissionLimit: submissionLimit,
+            user_id: user_pb.id
         };
         console.log(newFormBlueprint, 'newFormBlueprint');
-        setFormBlueprints([...formBlueprints, newFormBlueprint]);
-        setFormTitle('');
-        setFormFields([]);
-        setSubmissionLimit(undefined);
+
+        await pb.collection('formBlueprints').create(newFormBlueprint).then(() => {
+            setMessage('Form created successfully');
+            setOpen(true);
+            setFormBlueprints([...formBlueprints, newFormBlueprint]);
+            setFormTitle('');
+            setFormFields([]);
+            setSubmissionLimit(undefined)
+        });
     };
 
     return (
         <div>
+            <Snackbar
+                open={open}
+                autoHideDuration={6000}
+                message={message}
+            />
             <h2>Create a Form</h2>
             <TextField
                 label="Form Title"
@@ -105,7 +119,7 @@ function FormCreator() {
             <TextField
                 label="Submission Limit"
                 type="datetime-local"
-                value={submissionLimit ? submissionLimit.toISOString().slice(0, -8) : new Date()}
+                value={submissionLimit ? submissionLimit.toISOString().slice(0, -8) : (new Date()).toISOString()}
                 onChange={(e) => setSubmissionLimit(new Date(e.target.value))}
                 fullWidth
                 margin="normal"

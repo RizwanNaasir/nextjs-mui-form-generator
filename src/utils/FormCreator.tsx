@@ -63,13 +63,21 @@ function FormCreator() {
                 fullWidth
                 margin="normal"
             />
-            <Button variant="contained" color="primary" onClick={handleAddQuestion}>
-                Add Question
-            </Button>
+            <TextField
+                label="Submission Limit"
+                type="datetime-local"
+                value={submissionLimit ? submissionLimit.toISOString().slice(0, -8) : (new Date()).toISOString()}
+                onChange={(e) => setSubmissionLimit(new Date(e.target.value))}
+                fullWidth
+                margin="normal"
+                InputLabelProps={{
+                    shrink: true,
+                }}
+            />
             <br/>
             <br/>
             {formFields.map((field, index) => (
-                <Card sx={{minWidth: 275}} key={index}>
+                <Card sx={{my: 2}} key={index}>
                     <CardContent>
                         <TextField
                             label="Question"
@@ -105,33 +113,30 @@ function FormCreator() {
                             <MenuItem value="slider">Slider</MenuItem>
                             <MenuItem value="rating">Rating</MenuItem>
                         </Select>
-                    </CardContent>
-                    <CardActions>
                         <Button
                             variant="contained"
                             color="secondary"
                             onClick={() => handleRemoveQuestion(index)}
+                            sx={{float: 'right', m: 2}}
                         >
                             Remove Question
                         </Button>
-                    </CardActions> <br/><br/>
+                    </CardContent>
+                    <CardActions>
+
+                    </CardActions>
                 </Card>
             ))}
-            <TextField
-                label="Submission Limit"
-                type="datetime-local"
-                value={submissionLimit ? submissionLimit.toISOString().slice(0, -8) : (new Date()).toISOString()}
-                onChange={(e) => setSubmissionLimit(new Date(e.target.value))}
-                fullWidth
-                margin="normal"
-                InputLabelProps={{
-                    shrink: true,
-                }}
-            />
-            <br/>
-            <br/>
-            <Button variant="contained" color="primary" onClick={handleFormSubmit}>
+            <Button variant="contained" color="success" onClick={handleFormSubmit} sx={{float: 'right', m: 2}}>
                 Create Form
+            </Button>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAddQuestion}
+                sx={{float: 'right', m: 2}}
+            >
+                Add Question
             </Button>
         </div>
     );

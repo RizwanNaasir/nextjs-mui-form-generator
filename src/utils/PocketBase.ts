@@ -1,6 +1,6 @@
 import PocketBase from 'pocketbase';
 
-export const pb = new PocketBase('http://127.0.0.1:8090');
+export const pb = new PocketBase('https://rizwan-portfolio.fly.dev');
 
 export const login = async ({user, password}) => {
     return await pb.collection('users').authWithPassword(user, password);

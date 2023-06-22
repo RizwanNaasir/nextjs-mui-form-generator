@@ -53,6 +53,7 @@ function FormCreator() {
                 open={open}
                 autoHideDuration={6000}
                 message={message}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             />
             <h2>Create a Form</h2>
             <TextField

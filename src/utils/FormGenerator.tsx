@@ -17,9 +17,10 @@ import {
 import { generateExcelSheet } from "@/utils/generateExcelSheet";
 
 export interface FormBlueprint {
+    id?: string;
     title: string;
     fields: Array<ExtendedFormField>;
-    submissionLimit?: Date;
+    submissionLimit?: Date|any;
     user_id: number;
 }
 export interface FormField {

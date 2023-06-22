@@ -46,6 +46,9 @@ const Forms = () => {
                 setMessage(err.message);
                 setOpen(true);
                 setLoading(false);
+                if (err.status === 404) {
+                    router.push('/404');
+                }
             });
         }
     }, [id]);
@@ -64,6 +67,7 @@ const Forms = () => {
                 open={open}
                 autoHideDuration={6000}
                 message={message}
+                anchorOrigin={{ vertical: 'bottom',horizontal: 'right' }}
             />
             <Container maxWidth="sm">
                 <StyledContent>

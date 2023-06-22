@@ -70,6 +70,7 @@ export default function LoginPage() {
                     autoHideDuration={6000}
                     message={snackMessage}
                     onClose={() => setOpen(false)}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                 />
                 <Container maxWidth="sm">
                     <StyledContent>

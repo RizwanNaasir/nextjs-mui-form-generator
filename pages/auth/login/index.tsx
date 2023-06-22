@@ -6,7 +6,6 @@ import {
     IconButton,
     InputAdornment,
     Link,
-    Snackbar,
     Stack,
     TextField,
     Typography
@@ -15,6 +14,7 @@ import {LoadingButton} from '@mui/lab';
 import React, {useState} from "react";
 import {useForm} from '@mantine/form';
 import {login} from "@/utils/PocketBase";
+import {useSnackbar} from "notistack";
 
 const StyledRoot = styled('div')(({theme}) => ({
     [theme.breakpoints.up('md')]: {
@@ -43,35 +43,25 @@ export default function LoginPage() {
             email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
         },
     });
+    const {enqueueSnackbar} = useSnackbar();
     const [showPassword, setShowPassword] = useState(false);
-    const [open, setOpen] = useState(false);
-    const [snackMessage, setSnackMessage] = useState('');
     const handleSubmit = async (values) => {
         await login({
             user: values.email,
             password: values.password
         }).then((res) => {
-            setOpen(true);
-            setSnackMessage('Login success!');
+            enqueueSnackbar('Login successful', {variant: 'success'});
             localStorage.setItem('token', res.token);
             localStorage.setItem('user', JSON.stringify(res.record));
             document.cookie = `token=${res.token}; path=/;`;
             window.location.href = '/dashboard';
         }).catch((err) => {
-            setOpen(true);
-            setSnackMessage(err.message);
+            enqueueSnackbar(err.message, {variant: 'error'});
         });
     };
     return (
         <>
             <StyledRoot>
-                <Snackbar
-                    open={open}
-                    autoHideDuration={6000}
-                    message={snackMessage}
-                    onClose={() => setOpen(false)}
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                />
                 <Container maxWidth="sm">
                     <StyledContent>
                         <form onSubmit={form.onSubmit(

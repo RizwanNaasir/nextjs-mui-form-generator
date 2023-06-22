@@ -1,15 +1,15 @@
 import {useState} from "react";
 import {ExtendedFormField, FormBlueprint} from "@/utils/FormGenerator";
-import {Button, Card, MenuItem, Select, TextField, CardContent, CardActions, Snackbar} from "@mui/material";
+import {Button, Card, CardActions, CardContent, MenuItem, Select, TextField} from "@mui/material";
 import {pb} from "@/utils/PocketBase";
+import {useSnackbar} from 'notistack';
 
 function FormCreator() {
+    const {enqueueSnackbar} = useSnackbar();
     const [formBlueprints, setFormBlueprints] = useState<FormBlueprint[]>([]);
     const [formTitle, setFormTitle] = useState('');
     const [formFields, setFormFields] = useState<ExtendedFormField[]>([]);
     const [submissionLimit, setSubmissionLimit] = useState<Date | undefined>();
-    const [open, setOpen] = useState(false);
-    const [message, setMessage] = useState('');
     const handleAddQuestion = () => {
         if (formFields.length < 10) {
             setFormFields([...formFields, {type: 'text', label: '', name: ''}]);
@@ -38,8 +38,7 @@ function FormCreator() {
         console.log(newFormBlueprint, 'newFormBlueprint');
 
         await pb.collection('formBlueprints').create(newFormBlueprint).then(() => {
-            setMessage('Form created successfully');
-            setOpen(true);
+            enqueueSnackbar('Form created successfully', {variant: 'success'});
             setFormBlueprints([...formBlueprints, newFormBlueprint]);
             setFormTitle('');
             setFormFields([]);
@@ -49,12 +48,6 @@ function FormCreator() {
 
     return (
         <div>
-            <Snackbar
-                open={open}
-                autoHideDuration={6000}
-                message={message}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            />
             <h2>Create a Form</h2>
             <TextField
                 label="Form Title"

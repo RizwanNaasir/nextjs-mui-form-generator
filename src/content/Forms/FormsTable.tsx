@@ -6,7 +6,6 @@ import {
     Button,
     Card,
     Divider,
-    Snackbar,
     Table,
     TableBody,
     TableCell,
@@ -20,6 +19,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {FormBlueprint} from "@/utils/FormGenerator";
 import {pb} from "@/utils/PocketBase";
 import Link from "@/components/Link";
+import {useSnackbar} from "notistack";
 
 const applyPagination = (
     forms: FormBlueprint[],
@@ -32,14 +32,12 @@ const applyPagination = (
 const FormsTable = () => {
     const [forms, setForms] = useState<FormBlueprint[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [snackBar, setSnackBar] = useState<boolean>(false);
-    const [message, setMessage] = useState<string>('');
     const [page, setPage] = useState<number>(0);
     const [limit, setLimit] = useState<number>(5);
     const handlePageChange = (_event: any, newPage: number): void => {
         setPage(newPage);
     };
-
+    const {enqueueSnackbar} = useSnackbar();
     const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
         setLimit(parseInt(event.target.value));
     };
@@ -53,12 +51,10 @@ const FormsTable = () => {
         setLoading(true);
         await pb.collection('formBlueprints').delete(id).then(() => {
             setForms(forms.filter((form) => form.id !== id));
-            setMessage('Form deleted successfully');
-            setSnackBar(true);
+            enqueueSnackbar('Form deleted successfully', {variant: 'success'});
             setLoading(false);
         }).catch((err) => {
-            setMessage(err.message);
-            setSnackBar(true);
+            enqueueSnackbar(err.message, {variant: 'error'});
             setLoading(false);
         });
     }
@@ -70,20 +66,13 @@ const FormsTable = () => {
                 setForms(data.items as unknown as FormBlueprint[]);
                 setLoading(false);
             }).catch((err) => {
-            setMessage(err.message);
-            setSnackBar(true);
+            enqueueSnackbar(err.message, {variant: 'error'});
             setLoading(false);
         });
     }, [page, limit]);
 
     return (
         <Card>
-            <Snackbar
-                open={snackBar}
-                autoHideDuration={6000}
-                message={message}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            />
             <Divider/>
             <TableContainer>
                 <Table>

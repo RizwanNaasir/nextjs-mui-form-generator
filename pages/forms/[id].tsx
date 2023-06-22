@@ -2,10 +2,11 @@ import React, {useEffect, useState} from "react";
 
 import {styled} from "@mui/material/styles";
 
-import {Button, Container, Grid, Snackbar,} from "@mui/material";
+import {Button, Container, Grid} from "@mui/material";
 import useFormGenerator, {FormBlueprint} from "@/utils/FormGenerator";
 import {useRouter} from "next/router";
 import {pb} from "@/utils/PocketBase";
+import {useSnackbar} from "notistack";
 
 const StyledRoot = styled('div')(({theme}) => ({
     [theme.breakpoints.up('md')]: {
@@ -23,9 +24,8 @@ const StyledContent = styled('div')(({theme}) => ({
 }));
 
 const Forms = () => {
+    const {enqueueSnackbar} = useSnackbar();
     const [loading, setLoading] = useState(false);
-    const [open, setOpen] = useState(false);
-    const [message, setMessage] = useState('');
     const [jsonBlueprint, setJsonBlueprint] = useState<FormBlueprint>({
         title: '',
         fields: [],
@@ -43,8 +43,7 @@ const Forms = () => {
                 setJsonBlueprint(jsonBlueprint as unknown as FormBlueprint);
                 setLoading(false);
             }).catch((err) => {
-                setMessage(err.message);
-                setOpen(true);
+                enqueueSnackbar(err.message, {variant: 'error'});
                 setLoading(false);
                 if (err.status === 404) {
                     router.push('/404');
@@ -63,12 +62,6 @@ const Forms = () => {
 
     return (
         <StyledRoot>
-            <Snackbar
-                open={open}
-                autoHideDuration={6000}
-                message={message}
-                anchorOrigin={{ vertical: 'bottom',horizontal: 'right' }}
-            />
             <Container maxWidth="sm">
                 <StyledContent>
                     {loading ? (

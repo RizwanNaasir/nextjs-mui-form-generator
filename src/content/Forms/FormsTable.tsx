@@ -37,6 +37,7 @@ const FormsTable = () => {
     const [loadingRows, setLoadingRows] = useState([]);
     const [page, setPage] = useState<number>(0);
     const [limit, setLimit] = useState<number>(5);
+    const [total, setTotal] = useState<number>(0);
     const handlePageChange = (_event: any, newPage: number): void => {
         setPage(newPage);
     };
@@ -67,6 +68,9 @@ const FormsTable = () => {
             .getList(page, limit, {sort: 'title', order: 'asc', expand: 'user_id'})
             .then((data) => {
                 setForms(data.items as unknown as FormBlueprint[]);
+                setTotal(data.totalItems);
+                setPage(data.page);
+                setLimit(data.perPage);
                 setLoading(false);
             }).catch((err) => {
             enqueueSnackbar(err.message, {variant: 'error'});
@@ -193,7 +197,7 @@ const FormsTable = () => {
             <Box p={2}>
                 <TablePagination
                     component="div"
-                    count={forms.length}
+                    count={total}
                     onPageChange={handlePageChange}
                     onRowsPerPageChange={handleLimitChange}
                     page={page}

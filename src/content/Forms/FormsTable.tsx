@@ -36,7 +36,7 @@ const FormsTable = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingRows, setLoadingRows] = useState([]);
     const [page, setPage] = useState<number>(0);
-    const [limit, setLimit] = useState<number>(5);
+    const [limit, setLimit] = useState<number>(10);
     const [total, setTotal] = useState<number>(0);
     const handlePageChange = (_event: any, newPage: number): void => {
         setPage(newPage);
@@ -64,8 +64,13 @@ const FormsTable = () => {
     }
     useEffect(() => {
         setLoading(true);
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
         pb.collection('formBlueprints')
-            .getList(page, limit, {sort: 'title', order: 'asc', expand: 'user_id'})
+            .getList(page, limit, {
+                sort: 'title',
+                order: 'asc',
+                filter: `user_id="${user.id}"`,
+            })
             .then((data) => {
                 setForms(data.items as unknown as FormBlueprint[]);
                 setTotal(data.totalItems);

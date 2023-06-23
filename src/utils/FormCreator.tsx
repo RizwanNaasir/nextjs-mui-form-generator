@@ -66,13 +66,18 @@ function FormCreator() {
     const handleFormSubmit = async () => {
         setLoading(true);
         const user_pb = await JSON.parse(localStorage.getItem("user") || "{}");
+        const totalForms = await pb.collection("formBlueprints").getList(1, 1, {filter: `user_id="${user_pb.id}"`});
         const newFormBlueprint: FormBlueprint = {
             title: formTitle,
             fields: formFields,
             submissionLimit: submissionLimit,
             user_id: user_pb.id,
         };
-
+        if (totalForms.totalItems >= 10) {
+            enqueueSnackbar("You have reached the maximum number of forms", {variant: "error"});
+            setLoading(false);
+            return;
+        }
         await pb.collection("formBlueprints").create(newFormBlueprint).then((res) => {
             enqueueSnackbar(
                 "Form created successfully",

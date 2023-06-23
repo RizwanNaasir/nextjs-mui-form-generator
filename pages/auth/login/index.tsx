@@ -62,7 +62,7 @@ export default function LoginPage() {
                             (values) => handleSubmit(values)
                         )}>
                             <Typography variant="h4" gutterBottom>
-                                Sign in to Minimal
+                                Sign in ⚡
                             </Typography>
 
                             <Typography variant="body2" sx={{mb: 5}}>

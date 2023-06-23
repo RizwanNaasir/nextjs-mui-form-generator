@@ -6,6 +6,7 @@ import {
     Button,
     Card,
     Divider,
+    Skeleton,
     Table,
     TableBody,
     TableCell,
@@ -89,22 +90,23 @@ const FormsTable = () => {
                     <TableBody>
                         {(loading && forms.length === 0)
                             ? (
-                                <TableRow
-                                    hover
-                                    key={1}
-                                >
-                                    <TableCell>
-                                        <Typography
-                                            variant="body1"
-                                            fontWeight="bold"
-                                            color="text.primary"
-                                            gutterBottom
-                                            noWrap
-                                        >
-                                            Loading...
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
+                                [...Array(5)].map((_, index) => (
+                                    <TableRow hover key={index}>
+                                        <TableCell>
+                                            <Skeleton variant="text" width={100}/>
+                                            <Skeleton variant="text" width={100}/>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Skeleton variant="text" width={100}/>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Skeleton variant="text" width={100}/>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Skeleton variant="text" width={100}/>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
                             )
                             : paginatedForms.map((form) => {
                                 return (

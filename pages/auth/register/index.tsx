@@ -3,7 +3,7 @@ import {Container, Divider, IconButton, InputAdornment, Link, Stack, TextField, 
 import {LoadingButton} from '@mui/lab';
 import React, {useState} from "react";
 import {useForm} from '@mantine/form';
-import {login} from "@/utils/PocketBase";
+import {login, register} from "@/utils/PocketBase";
 import {useSnackbar} from "notistack";
 
 const StyledRoot = styled('div')(({theme}) => ({
@@ -22,9 +22,10 @@ const StyledContent = styled('div')(({theme}) => ({
     padding: theme.spacing(12, 0),
 }));
 
-export default function LoginPage() {
+export default function RegisterPage() {
     const form = useForm({
         initialValues: {
+            name: '',
             email: '',
             password: '',
         },
@@ -38,16 +39,26 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const handleSubmit = async (values) => {
         setLoading(true);
-        await login({
-            user: values.email,
+        await register({
+            name: values.name,
+            email: values.email,
             password: values.password
-        }).then((res) => {
-            enqueueSnackbar('Login successful', {variant: 'success'});
-            localStorage.setItem('token', res.token);
-            localStorage.setItem('user', JSON.stringify(res.record));
-            document.cookie = `token=${res.token}; path=/;`;
-            setLoading(false)
-            window.location.href = '/dashboard';
+        }).then(async () => {
+            enqueueSnackbar('Register successful', {variant: 'success'});
+            await login({
+                user: values.email,
+                password: values.password
+            }).then((res) => {
+                enqueueSnackbar('Login successful', {variant: 'success'});
+                localStorage.setItem('token', res.token);
+                localStorage.setItem('user', JSON.stringify(res.record));
+                document.cookie = `token=${res.token}; path=/;`;
+                setLoading(false)
+                window.location.href = '/dashboard';
+            }).catch((err) => {
+                enqueueSnackbar(err.message, {variant: 'error'});
+                setLoading(false);
+            });
         }).catch((err) => {
             enqueueSnackbar(err.message, {variant: 'error'});
             setLoading(false);
@@ -62,12 +73,12 @@ export default function LoginPage() {
                             (values) => handleSubmit(values)
                         )}>
                             <Typography variant="h4" gutterBottom>
-                                Sign in to Minimal
+                                Sign Up
                             </Typography>
 
                             <Typography variant="body2" sx={{mb: 5}}>
-                                Don’t have an account? {''}
-                                <Link variant="subtitle2" href="/auth/register">Regsiter</Link>
+                                Already have an account? {''}
+                                <Link variant="subtitle2" href="/auth/login">Login</Link>
                             </Typography>
 
                             <Divider sx={{my: 3}}>
@@ -77,6 +88,11 @@ export default function LoginPage() {
                             </Divider>
 
                             <Stack spacing={3}>
+                                <TextField
+                                    name="name" label="Name"
+                                    {...form.getInputProps('name')}
+                                />
+
                                 <TextField
                                     name="email" label="Email address"
                                     {...form.getInputProps('email')}
@@ -97,9 +113,10 @@ export default function LoginPage() {
                                     }}
                                 />
                             </Stack>
+
                             <LoadingButton sx={{my: 3}} fullWidth size="large" type="submit" variant="contained"
                                            loading={loading}>
-                                Login
+                                Register
                             </LoadingButton>
                         </form>
                     </StyledContent>

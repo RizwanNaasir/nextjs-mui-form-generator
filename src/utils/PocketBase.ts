@@ -6,6 +6,10 @@ export const login = async ({user, password}) => {
     return await pb.collection('users').authWithPassword(user, password);
 }
 
+export const register = async ({name, email, password}) => {
+    return await pb.collection('users').create({name, email, password, passwordConfirm: password});
+}
+
 
 // after the above you can also access the auth data from the authStore
 // console.log(pb.authStore.isValid);

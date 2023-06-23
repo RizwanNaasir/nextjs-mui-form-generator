@@ -1,9 +1,6 @@
 import Head from 'next/head';
 import SidebarLayout from '@/layouts/SidebarLayout';
-import {
-    Container, Grid,
-} from '@mui/material';
-import PageTitleWrapper from '@/components/PageTitleWrapper'
+import {Container, Grid,} from '@mui/material';
 import Footer from "@/components/Footer";
 import FormsTable from "@/content/Forms/FormsTable";
 
@@ -14,10 +11,7 @@ function ListForms() {
         <Head>
             <title>Forms - Applications</title>
         </Head>
-        <PageTitleWrapper>
-            <h3></h3>
-        </PageTitleWrapper>
-        <Container maxWidth="lg">
+        <Container maxWidth="lg" sx={{mt: 3}}>
             <Grid
                 container
                 direction="row"

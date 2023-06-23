@@ -2,11 +2,12 @@ import React, {useEffect, useState} from "react";
 
 import {styled} from "@mui/material/styles";
 
-import {Button, Container, Grid} from "@mui/material";
+import {Container, Grid} from "@mui/material";
 import useFormGenerator, {FormBlueprint} from "@/utils/FormGenerator";
 import {useRouter} from "next/router";
 import {pb} from "@/utils/PocketBase";
 import {useSnackbar} from "notistack";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 const StyledRoot = styled('div')(({theme}) => ({
     [theme.breakpoints.up('md')]: {
@@ -75,9 +76,9 @@ const Forms = () => {
                                 <Grid container spacing={2}>
                                     {formElements}
                                 </Grid>
-                                <Button type="submit" variant="contained" color="primary">
+                                <LoadingButton type="submit" variant="contained" color="primary" loading={loading}>
                                     Export to Excel
-                                </Button>
+                                </LoadingButton>
                             </form>
                         )
                     )}

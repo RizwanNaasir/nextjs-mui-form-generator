@@ -45,7 +45,9 @@ export default function LoginPage() {
     });
     const {enqueueSnackbar} = useSnackbar();
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
     const handleSubmit = async (values) => {
+        setLoading(true);
         await login({
             user: values.email,
             password: values.password
@@ -54,9 +56,11 @@ export default function LoginPage() {
             localStorage.setItem('token', res.token);
             localStorage.setItem('user', JSON.stringify(res.record));
             document.cookie = `token=${res.token}; path=/;`;
+            setLoading(false)
             window.location.href = '/dashboard';
         }).catch((err) => {
             enqueueSnackbar(err.message, {variant: 'error'});
+            setLoading(false);
         });
     };
     return (
@@ -111,7 +115,7 @@ export default function LoginPage() {
                                 </Link>
                             </Stack>
 
-                            <LoadingButton fullWidth size="large" type="submit" variant="contained">
+                            <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={loading}>
                                 Login
                             </LoadingButton>
                         </form>

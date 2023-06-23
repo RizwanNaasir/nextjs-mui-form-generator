@@ -20,6 +20,7 @@ import {FormBlueprint} from "@/utils/FormGenerator";
 import {pb} from "@/utils/PocketBase";
 import Link from "@/components/Link";
 import {useSnackbar} from "notistack";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 const applyPagination = (
     forms: FormBlueprint[],
@@ -32,6 +33,7 @@ const applyPagination = (
 const FormsTable = () => {
     const [forms, setForms] = useState<FormBlueprint[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [loadingRows, setLoadingRows] = useState([]);
     const [page, setPage] = useState<number>(0);
     const [limit, setLimit] = useState<number>(5);
     const handlePageChange = (_event: any, newPage: number): void => {
@@ -164,16 +166,19 @@ const FormsTable = () => {
                                                 >
                                                     Open
                                                 </Button>
-                                                <Button
+                                                <LoadingButton
                                                     variant="contained"
                                                     color="error"
-                                                    onClick={() => {
-                                                        deleteForm(form.id)
+                                                    onClick={async () => {
+                                                        setLoadingRows([...loadingRows, form.id]); // Set loading state for the specific row
+                                                        await deleteForm(form.id);
+                                                        setLoadingRows(loadingRows.filter((id) => id !== form.id)); // Remove loading state for the specific row
                                                     }}
                                                     sx={{ml: 1}}
+                                                    loading={loadingRows.includes(form.id)} // Use loading state for the specific row
                                                 >
                                                     Delete
-                                                </Button>
+                                                </LoadingButton>
                                             </Typography>
                                         </TableCell>
                                     </TableRow>

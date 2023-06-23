@@ -1,11 +1,14 @@
 import {useState} from "react";
 import {ExtendedFormField, FormBlueprint,} from "@/utils/FormGenerator";
-import {Button, Card, CardContent, Divider, MenuItem, Select, TextField,} from "@mui/material";
+import {Button, Card, CardContent, Divider, MenuItem, Select, TextField} from "@mui/material";
+import {TransitionGroup} from 'react-transition-group';
+import Collapse from '@mui/material/Collapse';
 import {pb} from "@/utils/PocketBase";
 import {useSnackbar} from "notistack";
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import LoadingButton from "@mui/lab/LoadingButton";
 
 function FormCreator() {
     const {enqueueSnackbar} = useSnackbar();
@@ -15,7 +18,7 @@ function FormCreator() {
         {type: "text", label: "", name: "", options: []},
     ]);
     const [submissionLimit, setSubmissionLimit] = useState<Date | undefined>();
-
+    const [loading, setLoading] = useState(false);
     const handleAddQuestion = () => {
         if (formFields.length < 10) {
             setFormFields([...formFields, {type: "text", label: "", name: ""}]);
@@ -61,6 +64,7 @@ function FormCreator() {
     };
 
     const handleFormSubmit = async () => {
+        setLoading(true);
         const user_pb = await JSON.parse(localStorage.getItem("user") || "{}");
         const newFormBlueprint: FormBlueprint = {
             title: formTitle,
@@ -94,6 +98,7 @@ function FormCreator() {
             setFormTitle("");
             setFormFields([]);
             setSubmissionLimit(undefined);
+            setLoading(false);
         });
     };
 
@@ -137,92 +142,101 @@ function FormCreator() {
 
             <br/>
             <br/>
-            {formFields.map((field, questionIndex) => (
-                <Card sx={{my: 2}} key={questionIndex}>
-                    <CardContent>
-                        <div style={{display: "flex", alignItems: "center"}}>
-                            <TextField
-                                label="Question"
-                                value={field.label}
-                                onChange={handleQuestionUpdate(questionIndex)}
-                                fullWidth
-                                sx={{m: "1rem"}}
-                            />
-                            <Select
-                                value={field.type}
-                                onChange={(e) =>
-                                    handleFieldTypeChange(
-                                        questionIndex,
-                                        e.target.value as ExtendedFormField["type"]
-                                    )
-                                }
-                                fullWidth
-                                sx={{m: "1rem"}}
-                            >
-                                <MenuItem value="text">Text</MenuItem>
-                                <MenuItem value="checkbox">Checkbox</MenuItem>
-                                <MenuItem value="radio">Radio</MenuItem>
-                                <MenuItem value="select">Select</MenuItem>
-                                <MenuItem value="slider">Slider</MenuItem>
-                                <MenuItem value="rating">Rating</MenuItem>
-                            </Select>
-                        </div>
-                        <Divider sx={{m: "1rem"}}/>
-                        {field.options && field.options.length > 0 && (
-                            <>
-                                {field.options.map((option, optionIndex) => (
-                                    <div key={optionIndex} style={{display: "flex", alignItems: "center"}}>
-                                        <TextField
-                                            label="Label"
-                                            value={option.label}
-                                            onChange={(e) =>
-                                                handleOptionChange(questionIndex, optionIndex, e.target.value)
-                                            }
-                                            fullWidth
-                                            margin="normal"
-                                            sx={{m: "1rem"}}
-                                        />
-                                        <Button
-                                            variant="contained"
-                                            color="secondary"
-                                            sx={{p: '0.8rem', m: 1}}
-                                            onClick={() => handleRemoveOption(questionIndex, optionIndex)}
-                                        >
-                                            <RemoveIcon/>
-                                        </Button>
-                                    </div>
-                                ))}
-                            </>
-                        )}
-                        {(field.type === "checkbox" || field.type === "select" || field.type === "radio") && (
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => handleAddOption(questionIndex)}
-                                sx={{m: "1rem"}}
-                            >
-                                <AddIcon/> Options
-                            </Button>
-                        )}
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() => handleRemoveQuestion(questionIndex)}
-                            sx={{float: "right", m: 2}}
-                        >
-                            <DeleteIcon/>
-                        </Button>
-                    </CardContent>
-                </Card>
-            ))}
-            <Button
+            <TransitionGroup>
+                {formFields.map((field, questionIndex) => (
+                    <Collapse key={questionIndex}>
+                        <Card sx={{my: 2}}>
+                            <CardContent>
+                                <div style={{display: "flex", alignItems: "center"}}>
+                                    <TextField
+                                        label="Question"
+                                        value={field.label}
+                                        onChange={handleQuestionUpdate(questionIndex)}
+                                        fullWidth
+                                        sx={{m: "1rem"}}
+                                    />
+                                    <Select
+                                        value={field.type}
+                                        onChange={(e) =>
+                                            handleFieldTypeChange(
+                                                questionIndex,
+                                                e.target.value as ExtendedFormField["type"]
+                                            )
+                                        }
+                                        fullWidth
+                                        sx={{m: "1rem"}}
+                                    >
+                                        <MenuItem value="text">Text</MenuItem>
+                                        <MenuItem value="checkbox">Checkbox</MenuItem>
+                                        <MenuItem value="radio">Radio</MenuItem>
+                                        <MenuItem value="select">Select</MenuItem>
+                                        <MenuItem value="slider">Slider</MenuItem>
+                                        <MenuItem value="rating">Rating</MenuItem>
+                                    </Select>
+                                </div>
+                                <Divider sx={{m: "1rem"}}/>
+                                {field.options && field.options.length > 0 && (
+                                    <>
+                                        <TransitionGroup>
+                                            {field.options.map((option, optionIndex) => (
+                                                <Collapse key={optionIndex}>
+                                                    <div style={{display: "flex", alignItems: "center"}}>
+                                                        <TextField
+                                                            label="Label"
+                                                            value={option.label}
+                                                            onChange={(e) =>
+                                                                handleOptionChange(questionIndex, optionIndex, e.target.value)
+                                                            }
+                                                            fullWidth
+                                                            margin="normal"
+                                                            sx={{m: "1rem"}}
+                                                        />
+                                                        <Button
+                                                            variant="contained"
+                                                            color="secondary"
+                                                            sx={{p: '0.8rem', m: 1}}
+                                                            onClick={() => handleRemoveOption(questionIndex, optionIndex)}
+                                                        >
+                                                            <RemoveIcon/>
+                                                        </Button>
+                                                    </div>
+                                                </Collapse>
+                                            ))}
+                                        </TransitionGroup>
+                                    </>
+                                )}
+                                {(field.type === "checkbox" || field.type === "select" || field.type === "radio") && (
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => handleAddOption(questionIndex)}
+                                        sx={{m: "1rem"}}
+                                    >
+                                        <AddIcon/> Options
+                                    </Button>
+                                )}
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={() => handleRemoveQuestion(questionIndex)}
+                                    sx={{float: "right", m: 2}}
+                                >
+                                    <DeleteIcon/>
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </Collapse>
+                ))}
+            </TransitionGroup>
+            <LoadingButton
                 variant="contained"
                 color="success"
                 onClick={handleFormSubmit}
                 sx={{float: "right", m: 2}}
+                loading={loading}
             >
                 Create Form
-            </Button>
+            </LoadingButton>
             <Button
                 variant="contained"
                 color="primary"

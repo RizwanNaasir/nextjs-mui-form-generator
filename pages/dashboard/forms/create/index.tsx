@@ -1,9 +1,6 @@
 import Head from 'next/head';
 import SidebarLayout from '@/layouts/SidebarLayout';
-import {
-    Container, Grid,
-} from '@mui/material';
-import PageTitleWrapper from '@/components/PageTitleWrapper'
+import {Container, Grid,} from '@mui/material';
 import Footer from "@/components/Footer";
 import {FormCreator} from "@/utils/FormCreator";
 
@@ -13,9 +10,6 @@ function CreateForms() {
         <Head>
             <title>Forms - Applications</title>
         </Head>
-        <PageTitleWrapper>
-            <h3></h3>
-        </PageTitleWrapper>
         <Container maxWidth="lg">
             <Grid
                 container

@@ -1,18 +1,24 @@
 import {useState} from "react";
-import {ExtendedFormField, FormBlueprint} from "@/utils/FormGenerator";
-import {Button, Card, CardActions, CardContent, MenuItem, Select, TextField} from "@mui/material";
+import {ExtendedFormField, FormBlueprint,} from "@/utils/FormGenerator";
+import {Button, Card, CardContent, Divider, MenuItem, Select, TextField,} from "@mui/material";
 import {pb} from "@/utils/PocketBase";
-import {useSnackbar} from 'notistack';
+import {useSnackbar} from "notistack";
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 function FormCreator() {
     const {enqueueSnackbar} = useSnackbar();
     const [formBlueprints, setFormBlueprints] = useState<FormBlueprint[]>([]);
-    const [formTitle, setFormTitle] = useState('');
-    const [formFields, setFormFields] = useState<ExtendedFormField[]>([]);
+    const [formTitle, setFormTitle] = useState("");
+    const [formFields, setFormFields] = useState<ExtendedFormField[]>([
+        {type: "text", label: "", name: "", options: []},
+    ]);
     const [submissionLimit, setSubmissionLimit] = useState<Date | undefined>();
+
     const handleAddQuestion = () => {
         if (formFields.length < 10) {
-            setFormFields([...formFields, {type: 'text', label: '', name: ''}]);
+            setFormFields([...formFields, {type: "text", label: "", name: ""}]);
         }
     };
 
@@ -22,29 +28,85 @@ function FormCreator() {
         setFormFields(updatedFields);
     };
 
-    const handleFieldTypeChange = (index: number, fieldType: ExtendedFormField['type']) => {
+    const handleFieldTypeChange = (
+        index: number,
+        fieldType: ExtendedFormField["type"]
+    ) => {
         const updatedFields = [...formFields];
         updatedFields[index].type = fieldType;
         setFormFields(updatedFields);
     };
+
+    const handleOptionChange = (
+        questionIndex: number,
+        optionIndex: number,
+        value: string
+    ) => {
+        const updatedFields = [...formFields];
+        updatedFields[questionIndex].options[optionIndex].value = value;
+        setFormFields(updatedFields);
+    };
+
+    const handleAddOption = (questionIndex: number) => {
+        const updatedFields = [...formFields];
+        console.log('questionIndex', questionIndex, 'updatedFields', updatedFields)
+        updatedFields[questionIndex].options.push({label: "", value: ""});
+        setFormFields(updatedFields);
+    };
+
+    const handleRemoveOption = (questionIndex: number, optionIndex: number) => {
+        const updatedFields = [...formFields];
+        updatedFields[questionIndex].options.splice(optionIndex, 1);
+        setFormFields(updatedFields);
+    };
+
     const handleFormSubmit = async () => {
-        const user_pb = await JSON.parse(localStorage.getItem('user') || '{}')
+        const user_pb = await JSON.parse(localStorage.getItem("user") || "{}");
         const newFormBlueprint: FormBlueprint = {
             title: formTitle,
             fields: formFields,
             submissionLimit: submissionLimit,
-            user_id: user_pb.id
+            user_id: user_pb.id,
         };
-        console.log(newFormBlueprint, 'newFormBlueprint');
 
-        await pb.collection('formBlueprints').create(newFormBlueprint).then(() => {
-            enqueueSnackbar('Form created successfully', {variant: 'success'});
+        await pb.collection("formBlueprints").create(newFormBlueprint).then((res) => {
+            enqueueSnackbar(
+                "Form created successfully",
+                {
+                    variant: "success",
+                    action: () => (
+                        <Button
+                            onClick={() => {
+                                navigator.clipboard.writeText(
+                                    window.location.origin + "/forms/" + res.id
+                                );
+                                enqueueSnackbar("Copied to clipboard", {variant: "success"});
+                            }}
+                            color="inherit"
+                        >
+                            Copy Link
+                        </Button>
+                    ),
+                }
+            );
+
             setFormBlueprints([...formBlueprints, newFormBlueprint]);
-            setFormTitle('');
+            setFormTitle("");
             setFormFields([]);
-            setSubmissionLimit(undefined)
+            setSubmissionLimit(undefined);
         });
     };
+
+    function handleQuestionUpdate(questionIndex: number) {
+        return (e) => {
+            const updatedFields = [...formFields];
+            const value = e.target.value;
+            updatedFields[questionIndex].label = value;
+            updatedFields[questionIndex].name = value.replace(/\s+/g, "-").toLowerCase();
+            updatedFields[questionIndex].options = [];
+            setFormFields(updatedFields);
+        };
+    }
 
     return (
         <div>
@@ -59,7 +121,11 @@ function FormCreator() {
             <TextField
                 label="Submission Limit"
                 type="datetime-local"
-                value={submissionLimit ? submissionLimit.toISOString().slice(0, -8) : (new Date()).toISOString()}
+                value={
+                    submissionLimit
+                        ? submissionLimit.toISOString().slice(0, 16)
+                        : new Date().toISOString().slice(0, 16)
+                }
                 onChange={(e) => setSubmissionLimit(new Date(e.target.value))}
                 fullWidth
                 margin="normal"
@@ -67,69 +133,103 @@ function FormCreator() {
                     shrink: true,
                 }}
             />
+            <Divider sx={{mt: "1rem"}}/>
+
             <br/>
             <br/>
-            {formFields.map((field, index) => (
-                <Card sx={{my: 2}} key={index}>
+            {formFields.map((field, questionIndex) => (
+                <Card sx={{my: 2}} key={questionIndex}>
                     <CardContent>
-                        <TextField
-                            label="Question"
-                            value={field.label}
-                            onChange={(e) => {
-                                const updatedFields = [...formFields];
-                                updatedFields[index].label = e.target.value;
-                                setFormFields(updatedFields);
-                            }}
-                            fullWidth
-                            margin="normal"
-                        />
-                        <TextField
-                            label="Field Name"
-                            value={field.name}
-                            onChange={(e) => {
-                                const updatedFields = [...formFields];
-                                updatedFields[index].name = e.target.value;
-                                setFormFields(updatedFields);
-                            }}
-                            fullWidth
-                            margin="normal"
-                        />
-                        <Select
-                            value={field.type}
-                            onChange={(e) => handleFieldTypeChange(index, e.target.value as ExtendedFormField['type'])}
-                            fullWidth
-                        >
-                            <MenuItem value="text">Text</MenuItem>
-                            <MenuItem value="checkbox">Checkbox</MenuItem>
-                            <MenuItem value="radio">Radio</MenuItem>
-                            <MenuItem value="select">Select</MenuItem>
-                            <MenuItem value="slider">Slider</MenuItem>
-                            <MenuItem value="rating">Rating</MenuItem>
-                        </Select>
+                        <div style={{display: "flex", alignItems: "center"}}>
+                            <TextField
+                                label="Question"
+                                value={field.label}
+                                onChange={handleQuestionUpdate(questionIndex)}
+                                fullWidth
+                                sx={{m: "1rem"}}
+                            />
+                            <Select
+                                value={field.type}
+                                onChange={(e) =>
+                                    handleFieldTypeChange(
+                                        questionIndex,
+                                        e.target.value as ExtendedFormField["type"]
+                                    )
+                                }
+                                fullWidth
+                                sx={{m: "1rem"}}
+                            >
+                                <MenuItem value="text">Text</MenuItem>
+                                <MenuItem value="checkbox">Checkbox</MenuItem>
+                                <MenuItem value="radio">Radio</MenuItem>
+                                <MenuItem value="select">Select</MenuItem>
+                                <MenuItem value="slider">Slider</MenuItem>
+                                <MenuItem value="rating">Rating</MenuItem>
+                            </Select>
+                        </div>
+                        <Divider sx={{m: "1rem"}}/>
+                        {field.options && field.options.length > 0 && (
+                            <>
+                                {field.options.map((option, optionIndex) => (
+                                    <div key={optionIndex} style={{display: "flex", alignItems: "center"}}>
+                                        <TextField
+                                            label="Label"
+                                            value={option.label}
+                                            onChange={(e) =>
+                                                handleOptionChange(questionIndex, optionIndex, e.target.value)
+                                            }
+                                            fullWidth
+                                            margin="normal"
+                                            sx={{m: "1rem"}}
+                                        />
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            sx={{p: '0.8rem', m: 1}}
+                                            onClick={() => handleRemoveOption(questionIndex, optionIndex)}
+                                        >
+                                            <RemoveIcon/>
+                                        </Button>
+                                    </div>
+                                ))}
+                            </>
+                        )}
+                        {(field.type === "checkbox" || field.type === "select" || field.type === "radio") && (
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => handleAddOption(questionIndex)}
+                                sx={{m: "1rem"}}
+                            >
+                                <AddIcon/> Options
+                            </Button>
+                        )}
                         <Button
                             variant="contained"
                             color="secondary"
-                            onClick={() => handleRemoveQuestion(index)}
-                            sx={{float: 'right', m: 2}}
+                            onClick={() => handleRemoveQuestion(questionIndex)}
+                            sx={{float: "right", m: 2}}
                         >
-                            Remove Question
+                            <DeleteIcon/>
                         </Button>
                     </CardContent>
-                    <CardActions>
-
-                    </CardActions>
                 </Card>
             ))}
-            <Button variant="contained" color="success" onClick={handleFormSubmit} sx={{float: 'right', m: 2}}>
+            <Button
+                variant="contained"
+                color="success"
+                onClick={handleFormSubmit}
+                sx={{float: "right", m: 2}}
+            >
                 Create Form
             </Button>
             <Button
                 variant="contained"
                 color="primary"
                 onClick={handleAddQuestion}
-                sx={{float: 'right', m: 2}}
+                sx={{float: "right", m: 2}}
             >
-                Add Question
+                <AddIcon/> Question
             </Button>
         </div>
     );

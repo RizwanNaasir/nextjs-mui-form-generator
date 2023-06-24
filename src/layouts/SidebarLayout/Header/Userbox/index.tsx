@@ -1,27 +1,10 @@
 import {useEffect, useRef, useState} from 'react';
 
-import NextLink from 'next/link';
+import {Avatar, Box, Button, Divider, Hidden, lighten, Popover, Typography} from '@mui/material';
 
-import {
-  Avatar,
-  Box,
-  Button,
-  Divider,
-  Hidden,
-  lighten,
-  List,
-  ListItem,
-  ListItemText,
-  Popover,
-  Typography
-} from '@mui/material';
-
-import InboxTwoToneIcon from '@mui/icons-material/InboxTwoTone';
-import { styled } from '@mui/material/styles';
+import {styled} from '@mui/material/styles';
 import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
-import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
-import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import {pb} from "@/utils/PocketBase";
 
 const UserBoxButton = styled(Button)(
@@ -61,11 +44,11 @@ const UserBoxDescription = styled(Typography)(
 
 function HeaderUserBox() {
 
-  let user = {
+  const [user, setUser] = useState<any>({
     name: 'Catherine Pike',
     avatar: '/static/images/avatars/1.jpg',
     jobtitle: 'Project Manager'
-  };
+  })
 
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
@@ -84,16 +67,14 @@ function HeaderUserBox() {
     document.location.href = '/auth/login';
   };
   useEffect(() => {
-    (async () => {
-      const user_pb = await JSON.parse(localStorage.getItem('user') || '{}')
-        if (user_pb) {
-            user = {
-                name: user_pb.name,
-                avatar: pb.files.getUrl(user_pb, user_pb.avatar),
-                jobtitle: user_pb.email
-            }
-        }
-    })();
+    const user_pb = JSON.parse(localStorage.getItem('user') || '{}')
+    if (user_pb) {
+      setUser({
+        name: user_pb.name,
+        avatar: pb.files.getUrl(user_pb, user_pb.avatar),
+        jobtitle: user_pb.email
+      })
+    }
   },[])
   return (
     <>
@@ -134,26 +115,6 @@ function HeaderUserBox() {
           </UserBoxText>
         </MenuUserBox>
         <Divider sx={{ mb: 0 }} />
-        <List sx={{ p: 1 }} component="nav">
-          <NextLink href="/management/profile" passHref>
-            <ListItem button>
-              <AccountBoxTwoToneIcon fontSize="small" />
-              <ListItemText primary="My Profile" />
-            </ListItem>
-          </NextLink>
-          <NextLink href="/applications/messenger" passHref>
-            <ListItem button>
-              <InboxTwoToneIcon fontSize="small" />
-              <ListItemText primary="Messenger" />
-            </ListItem>
-          </NextLink>
-          <NextLink href="/management/profile/settings" passHref>
-            <ListItem button>
-              <AccountTreeTwoToneIcon fontSize="small" />
-              <ListItemText primary="Account Settings" />
-            </ListItem>
-          </NextLink>
-        </List>
         <Divider />
         <Box sx={{ m: 1 }}>
           <Button color="primary" fullWidth onClick={logout}>

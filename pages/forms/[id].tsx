@@ -56,9 +56,7 @@ const Forms = () => {
         if (!submissionLimit) {
             return false; // No submission limit set, form is not expired
         }
-
-        const currentDate = new Date();
-        return currentDate > submissionLimit;
+        return (new Date() > new Date(submissionLimit));
     };
 
     return (
@@ -69,14 +67,20 @@ const Forms = () => {
                         <div>Loading...</div>
                     ) : (
                         isFormExpired(jsonBlueprint.submissionLimit) ? (
-                            <p>The form has expired.</p>
+                            <p>The form was expired at {jsonBlueprint.submissionLimit.toString()}</p>
                         ) : (
                             <form onSubmit={handleSubmit}>
                                 <h1>{jsonBlueprint.title}</h1>
                                 <Grid container spacing={2}>
                                     {formElements}
                                 </Grid>
-                                <LoadingButton type="submit" variant="contained" color="primary" loading={loading}>
+                                <LoadingButton
+                                    type="submit"
+                                    variant="contained"
+                                    color="primary"
+                                    loading={loading}
+                                    sx={{mt: 2, float: 'right'}}
+                                >
                                     Export to Excel
                                 </LoadingButton>
                             </form>

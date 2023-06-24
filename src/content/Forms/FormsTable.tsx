@@ -134,7 +134,7 @@ const FormsTable = () => {
                                                 {form.title}
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary" noWrap>
-                                                {format(new Date(form.submissionLimit), 'MMMM dd yyyy')}
+                                                {format(new Date(form.submissionLimit || new Date()), 'MMMM dd yyyy')}
                                             </Typography>
                                         </TableCell>
                                         <TableCell>

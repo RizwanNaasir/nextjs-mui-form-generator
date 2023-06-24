@@ -17,13 +17,23 @@ function FormCreator() {
     const [formFields, setFormFields] = useState<ExtendedFormField[]>([
         {type: "text", label: "", name: "", options: []},
     ]);
-    const [submissionLimit, setSubmissionLimit] = useState<Date | undefined>();
+    const [submissionLimit, setSubmissionLimit] = useState<Date | undefined>(new Date(Date.now() + 60 * 60 * 1000));
     const [loading, setLoading] = useState(false);
     const handleAddQuestion = () => {
-        if (formFields.length < 10) {
+        const previousQuestionHasLabel = formFields[formFields.length - 1]?.label;
+
+        if (!previousQuestionHasLabel && formFields.length !== 0) {
+            enqueueSnackbar("Please fill out the previous question", {variant: "warning"});
+            return;
+        }
+
+        if (formFields.length <= 10) {
             setFormFields([...formFields, {type: "text", label: "", name: ""}]);
+        } else {
+            enqueueSnackbar("You have reached the maximum number of questions", {variant: "error"});
         }
     };
+
 
     const handleRemoveQuestion = (index: number) => {
         const updatedFields = [...formFields];
@@ -46,13 +56,16 @@ function FormCreator() {
         value: string
     ) => {
         const updatedFields = [...formFields];
-        updatedFields[questionIndex].options[optionIndex].value = value;
+        updatedFields[questionIndex].options[optionIndex] = {
+            ...updatedFields[questionIndex].options[optionIndex],
+            label: value,
+            value: value.replace(/\s+/g, "-").toLowerCase()
+        };
         setFormFields(updatedFields);
     };
 
     const handleAddOption = (questionIndex: number) => {
         const updatedFields = [...formFields];
-        console.log('questionIndex', questionIndex, 'updatedFields', updatedFields)
         updatedFields[questionIndex].options.push({label: "", value: ""});
         setFormFields(updatedFields);
     };
@@ -64,6 +77,10 @@ function FormCreator() {
     };
 
     const handleFormSubmit = async () => {
+        if (!formTitle) {
+            enqueueSnackbar("Please enter a form title", {variant: "warning"});
+            return false;
+        }
         setLoading(true);
         const user_pb = await JSON.parse(localStorage.getItem("user") || "{}");
         const totalForms = await pb.collection("formBlueprints").getList(1, 1, {filter: `user_id="${user_pb.id}"`});
@@ -127,6 +144,7 @@ function FormCreator() {
                 onChange={(e) => setFormTitle(e.target.value)}
                 fullWidth
                 margin="normal"
+                required
             />
             <TextField
                 label="Submission Limit"
@@ -158,6 +176,7 @@ function FormCreator() {
                                         value={field.label}
                                         onChange={handleQuestionUpdate(questionIndex)}
                                         fullWidth
+                                        required
                                         sx={{m: "1rem"}}
                                     />
                                     <Select
@@ -193,6 +212,7 @@ function FormCreator() {
                                                                 handleOptionChange(questionIndex, optionIndex, e.target.value)
                                                             }
                                                             fullWidth
+                                                            required
                                                             margin="normal"
                                                             sx={{m: "1rem"}}
                                                         />

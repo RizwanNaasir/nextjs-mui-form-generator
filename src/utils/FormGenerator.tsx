@@ -14,34 +14,11 @@ import {
     Switch,
     TextField
 } from '@mui/material';
-import { generateExcelSheet } from "@/utils/generateExcelSheet";
+import {generateExcelSheet} from "@/utils/generateExcelSheet";
+import {FormBlueprint, FormGeneratorResult} from "@/models/form";
 
-export interface FormBlueprint {
-    id?: string;
-    title: string;
-    fields: Array<ExtendedFormField>;
-    submissionLimit?: Date|any;
-    user_id: number;
-}
-export interface FormField {
-    type: 'text' | 'email' | 'checkbox' | 'radio' | 'select' | 'switch' | 'slider' | 'rating';
-    label: string;
-    name: string;
-    multiline?: boolean;
-    xs?: number; // Optional property to specify the `xs` value for Grid item
-    options?: Array<{ label: string; value: string }>; // Only required for radio and select fields
-}
-export interface ExtendedFormField extends FormField {
-    inputProps?: Partial<React.InputHTMLAttributes<HTMLInputElement>>; // Partial InputProps for HTML input elements
-}
-
-export interface FormGeneratorResult {
-    formElements: JSX.Element[];
-    handleSubmit: () => void;
-}
-
-function useFormGenerator(jsonBlueprint: FormBlueprint): FormGeneratorResult {
-    const [formValues, setFormValues] = useState<any>({});
+export default function useFormGenerator(jsonBlueprint: FormBlueprint): FormGeneratorResult {
+    const [formValues, setFormValues] = useState<{ [key: string]: any }>({});
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value, type, checked} = event.target;
@@ -51,8 +28,6 @@ function useFormGenerator(jsonBlueprint: FormBlueprint): FormGeneratorResult {
 
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
-        // Handle form submission
-        console.log('Form values:', formValues);
         generateExcelSheet(formValues);
     };
 
@@ -192,10 +167,10 @@ function useFormGenerator(jsonBlueprint: FormBlueprint): FormGeneratorResult {
                 return null;
         }
     });
+
     return {
+        formValues,
         formElements,
         handleSubmit,
     } as FormGeneratorResult;
 }
-
-export default useFormGenerator;

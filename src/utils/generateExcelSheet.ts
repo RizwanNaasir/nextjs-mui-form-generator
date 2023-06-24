@@ -1,13 +1,20 @@
-import { writeFile, utils } from 'xlsx';
-const { sheet_add_json } = utils;
-import { saveAs } from 'file-saver';
+import {utils, writeFile} from 'xlsx';
+
+const {sheet_add_aoa} = utils;
 
 export function generateExcelSheet(formValues) {
-    const worksheet = sheet_add_json({}, formValues, { header: ['Question', ...formValues.map(field => field.label)] });
+    console.log(formValues);
+
+    const questions = Object.keys(formValues);
+    const responses = Object.values(formValues);
+
+    const data = [questions, responses];
+
+    const worksheet = sheet_add_aoa({}, data, {origin: -1});
     const workbook = {
-        Sheets: { 'Sheet1': worksheet },
+        Sheets: {'Sheet1': worksheet},
         SheetNames: ['Sheet1'],
     };
-    const excelBuffer = writeFile(workbook, 'form_responses.xlsx',{ type: 'buffer', bookType: 'xlsx' });
-    saveAs(new Blob([excelBuffer]), 'form_responses.xlsx');
+
+    writeFile(workbook, 'form_responses.xlsx', {type: 'buffer', bookType: 'xlsx'});
 }

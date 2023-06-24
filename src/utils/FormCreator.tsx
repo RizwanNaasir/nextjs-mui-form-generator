@@ -1,5 +1,4 @@
 import {useState} from "react";
-import {ExtendedFormField, FormBlueprint,} from "@/utils/FormGenerator";
 import {Button, Card, CardContent, Divider, MenuItem, Select, TextField} from "@mui/material";
 import {TransitionGroup} from 'react-transition-group';
 import Collapse from '@mui/material/Collapse';
@@ -9,6 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import LoadingButton from "@mui/lab/LoadingButton";
+import {ExtendedFormField, FormBlueprint} from "@/models/form";
 
 function FormCreator() {
     const {enqueueSnackbar} = useSnackbar();

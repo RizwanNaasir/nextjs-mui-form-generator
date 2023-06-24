@@ -17,11 +17,11 @@ import {
     Typography,
 } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import {FormBlueprint} from "@/utils/FormGenerator";
 import {pb} from "@/utils/PocketBase";
 import Link from "@/components/Link";
 import {useSnackbar} from "notistack";
 import LoadingButton from "@mui/lab/LoadingButton";
+import {FormBlueprint} from "@/models/form";
 
 const applyPagination = (
     forms: FormBlueprint[],

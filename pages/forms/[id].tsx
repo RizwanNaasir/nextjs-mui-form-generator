@@ -2,12 +2,13 @@ import React, {useEffect, useState} from "react";
 
 import {styled} from "@mui/material/styles";
 
-import {Container, Grid} from "@mui/material";
-import useFormGenerator, {FormBlueprint} from "@/utils/FormGenerator";
+import {CircularProgress, Container, Divider, Grid} from "@mui/material";
+import useFormGenerator from "@/utils/FormGenerator";
 import {useRouter} from "next/router";
 import {pb} from "@/utils/PocketBase";
 import {useSnackbar} from "notistack";
 import LoadingButton from "@mui/lab/LoadingButton";
+import {FormBlueprint} from "@/models/form";
 
 const StyledRoot = styled('div')(({theme}) => ({
     [theme.breakpoints.up('md')]: {
@@ -64,22 +65,24 @@ const Forms = () => {
             <Container maxWidth="sm">
                 <StyledContent>
                     {loading ? (
-                        <div>Loading...</div>
+                        <CircularProgress/>
                     ) : (
                         isFormExpired(jsonBlueprint.submissionLimit) ? (
                             <p>The form was expired at {jsonBlueprint.submissionLimit.toString()}</p>
                         ) : (
                             <form onSubmit={handleSubmit}>
                                 <h1>{jsonBlueprint.title}</h1>
+                                <Divider sx={{my: "1rem"}}/>
                                 <Grid container spacing={2}>
                                     {formElements}
                                 </Grid>
+                                <Divider sx={{my: "2rem"}}/>
                                 <LoadingButton
                                     type="submit"
                                     variant="contained"
                                     color="primary"
                                     loading={loading}
-                                    sx={{mt: 2, float: 'right'}}
+                                    sx={{float: 'right'}}
                                 >
                                     Export to Excel
                                 </LoadingButton>

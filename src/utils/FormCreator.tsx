@@ -1,4 +1,4 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import {Button, Card, CardContent, Divider, MenuItem, Select, TextField} from "@mui/material";
 import {TransitionGroup} from 'react-transition-group';
 import Collapse from '@mui/material/Collapse';
@@ -27,7 +27,7 @@ function FormCreator() {
             return;
         }
 
-        if (formFields.length <= 10) {
+        if (formFields.length <= 9) {
             setFormFields([...formFields, {type: "text", label: "", name: ""}]);
         } else {
             enqueueSnackbar("You have reached the maximum number of questions", {variant: "error"});
@@ -83,7 +83,7 @@ function FormCreator() {
         }
         setLoading(true);
         const user_pb = await JSON.parse(localStorage.getItem("user") || "{}");
-        const totalForms = await pb.collection("formBlueprints").getList(1, 1, {filter: `user_id="${user_pb.id}"`});
+        const totalForms = await pb.collection("formBlueprints").getList<FormBlueprint>(1, 1, {filter: `user_id="${user_pb.id}"`});
         const newFormBlueprint: FormBlueprint = {
             title: formTitle,
             fields: formFields,
@@ -95,7 +95,7 @@ function FormCreator() {
             setLoading(false);
             return;
         }
-        await pb.collection("formBlueprints").create(newFormBlueprint).then((res) => {
+        await pb.collection("formBlueprints").create<FormBlueprint>(newFormBlueprint).then((res) => {
             enqueueSnackbar(
                 "Form created successfully",
                 {
@@ -125,7 +125,7 @@ function FormCreator() {
     };
 
     function handleQuestionUpdate(questionIndex: number) {
-        return (e) => {
+        return (e: React.ChangeEvent<HTMLInputElement>) => {
             const updatedFields = [...formFields];
             const value = e.target.value;
             updatedFields[questionIndex].label = value;
@@ -268,7 +268,7 @@ function FormCreator() {
                 onClick={handleAddQuestion}
                 sx={{float: "right", m: 2}}
             >
-                <AddIcon/> Question
+                <AddIcon/> Question ({10 - formFields.length} left)
             </Button>
         </div>
     );

@@ -97,7 +97,7 @@ const Forms = () => {
                         isFormExpired(jsonBlueprint.submissionLimit) ? (
                             <NotFound
                                 message={
-                                    "The form was expired at" + formatDistanceToNow(
+                                    "The form was expired  " + formatDistanceToNow(
                                         fromUnixTime(jsonBlueprint.submissionLimit.seconds),
                                         {addSuffix: true})
                                 }
@@ -117,7 +117,7 @@ const Forms = () => {
                                     loading={loading}
                                     sx={{float: 'right'}}
                                 >
-                                    Export to Excel
+                                    Submit
                                 </LoadingButton>
                             </form>
                         )

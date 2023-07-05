@@ -31,6 +31,7 @@ export default function LoginPage() {
 
         validate: {
             email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+            password: (value) => (value.length >= 6 ? null : 'Password should be at least 6 characters long'),
         },
     });
     const {enqueueSnackbar} = useSnackbar();
@@ -67,7 +68,7 @@ export default function LoginPage() {
 
                             <Typography variant="body2" sx={{mb: 5}}>
                                 Don’t have an account? {''}
-                                <Link variant="subtitle2" href="/auth/register">Regsiter</Link>
+                                <Link variant="subtitle2" href="/auth/register">Register</Link>
                             </Typography>
 
                             <Divider sx={{my: 3}}>
@@ -78,8 +79,11 @@ export default function LoginPage() {
 
                             <Stack spacing={3}>
                                 <TextField
-                                    name="email" label="Email address"
+                                    name="email"
+                                    label="Email address"
                                     {...form.getInputProps('email')}
+                                    error={Boolean(form.errors.email)}
+                                    helperText={form.errors.email}
                                 />
 
                                 <TextField
@@ -95,6 +99,8 @@ export default function LoginPage() {
                                             </InputAdornment>
                                         ),
                                     }}
+                                    error={Boolean(form.errors.password)}
+                                    helperText={form.errors.password}
                                 />
                             </Stack>
                             <LoadingButton sx={{my: 3}} fullWidth

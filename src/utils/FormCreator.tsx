@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Card, CardContent, Divider, MenuItem, Select, TextField} from "@mui/material";
 import {TransitionGroup} from 'react-transition-group';
 import Collapse from '@mui/material/Collapse';
@@ -15,7 +15,7 @@ import {getAuth} from 'firebase/auth';
 
 function FormCreator() {
     const {enqueueSnackbar} = useSnackbar();
-    const [user] = useAuthState(getAuth());
+    const [user, userLoading, userError] = useAuthState(getAuth());
     const [formBlueprints, setFormBlueprints] = useState<FormBlueprint[]>([]);
     const [formTitle, setFormTitle] = useState("");
     const [formFields, setFormFields] = useState<ExtendedFormField[]>([
@@ -148,6 +148,11 @@ function FormCreator() {
         };
     }
 
+    useEffect(() => {
+        if (!user && !userLoading) {
+            window.location.href = '/auth/login';
+        }
+    }, [user, userLoading, userError]);
     return (
         <div>
             <h2>Create a Form</h2>

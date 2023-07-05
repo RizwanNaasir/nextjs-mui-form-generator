@@ -12,6 +12,7 @@ import {db as firebaseDB} from "@/utils/Firebase";
 import {addDoc, collection, CollectionReference, getCountFromServer, query, where} from "@firebase/firestore";
 import {useAuthState} from "react-firebase-hooks/auth";
 import {getAuth} from 'firebase/auth';
+import {DateTimePicker} from "@mui/lab";
 
 function FormCreator() {
     const {enqueueSnackbar} = useSnackbar();
@@ -21,7 +22,7 @@ function FormCreator() {
     const [formFields, setFormFields] = useState<ExtendedFormField[]>([
         {type: "text", label: "", name: "", options: []},
     ]);
-    const [submissionLimit, setSubmissionLimit] = useState<Date | undefined>(new Date(Date.now() + 60 * 60 * 1000));
+    const [submissionLimit, setSubmissionLimit] = useState<Date | undefined>(new Date(Date.now() + 300 * 60 * 1000));
     const [loading, setLoading] = useState(false);
     const handleAddQuestion = () => {
         const previousQuestionHasLabel = formFields[formFields.length - 1]?.label;
@@ -131,9 +132,9 @@ function FormCreator() {
 
             setFormBlueprints([...formBlueprints, newFormBlueprint]);
             setFormTitle("");
-            setFormFields([]);
-            setSubmissionLimit(undefined);
-            setLoading(false);
+                setFormFields([]);
+                setSubmissionLimit(new Date());
+                setLoading(false);
         });
     };
 
@@ -164,21 +165,28 @@ function FormCreator() {
                 margin="normal"
                 required
             />
-            <TextField
+            <DateTimePicker
                 label="Submission Limit"
-                type="datetime-local"
                 value={
                     submissionLimit
                         ? submissionLimit.toISOString().slice(0, 16)
                         : new Date().toISOString().slice(0, 16)
                 }
-                onChange={(e) => setSubmissionLimit(new Date(e.target.value))}
-                fullWidth
-                margin="normal"
-                InputLabelProps={{
-                    shrink: true,
-                }}
+                onChange={(e) => setSubmissionLimit(new Date(e))}
+                renderInput={(props) => (
+                    <TextField
+                        {...props}
+                        fullWidth
+                        sx={{mt: 2}}
+                        variant="outlined"
+                        inputProps={{
+                            ...props.inputProps,
+                            maxLength: 16 // Limit the input to 16 characters
+                        }}
+                    />
+                )}
             />
+
             <Divider sx={{mt: "1rem"}}/>
 
             <br/>

@@ -7,12 +7,13 @@ import {getAuth} from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAIzbHWq9HKtE3_PAQqpafE8CuwKIR6Y8k",
-    authDomain: "mui-form-generator.firebaseapp.com",
-    projectId: "mui-form-generator",
-    storageBucket: "mui-form-generator.appspot.com",
-    messagingSenderId: "587456041237",
-    appId: "1:587456041237:web:6ac554c34e2bf8f683191c"
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    // measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase

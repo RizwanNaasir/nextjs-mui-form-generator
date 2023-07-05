@@ -3,7 +3,7 @@ import {Container, Divider, IconButton, InputAdornment, Link, Stack, TextField, 
 import {LoadingButton} from '@mui/lab';
 import React, {useState} from "react";
 import {useForm} from '@mantine/form';
-import {login} from "@/utils/PocketBase";
+import {login} from "@/utils/AuthProvider";
 import {useSnackbar} from "notistack";
 
 const StyledRoot = styled('div')(({theme}) => ({
@@ -41,16 +41,16 @@ export default function LoginPage() {
         await login({
             user: values.email,
             password: values.password
-        }).then((res) => {
-            enqueueSnackbar('Login successful', {variant: 'success'});
-            localStorage.setItem('token', res.token);
-            localStorage.setItem('user', JSON.stringify(res.record));
-            document.cookie = `token=${res.token}; path=/;`;
-            setLoading(false)
-            window.location.href = '/dashboard';
-        }).catch((err) => {
-            enqueueSnackbar(err.message, {variant: 'error'});
-            setLoading(false);
+        }).then(({result, error}) => {
+            if (error) {
+                enqueueSnackbar(error, {variant: 'error'});
+                setLoading(false);
+                return;
+            } else if (result) {
+                enqueueSnackbar('Logged In!', {variant: 'success'});
+                setLoading(false)
+                window.location.href = '/dashboard';
+            }
         });
     };
     return (

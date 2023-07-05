@@ -1,8 +1,7 @@
-import React, {ChangeEvent, useEffect, useState} from 'react';
-import {format} from 'date-fns';
+import React, {useEffect, useMemo, useState} from 'react';
+import {formatDistanceToNow, fromUnixTime} from 'date-fns';
 import PropTypes from 'prop-types';
 import {
-    Box,
     Button,
     Card,
     Divider,
@@ -12,205 +11,175 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TablePagination,
     TableRow,
     Typography,
 } from '@mui/material';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import {pb} from "@/utils/PocketBase";
-import Link from "@/components/Link";
 import {useSnackbar} from "notistack";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {FormBlueprint} from "@/models/form";
-
-const applyPagination = (
-    forms: FormBlueprint[],
-    _page: number,
-    _limit: number
-): FormBlueprint[] => {
-    return forms;
-};
+import {auth, db} from "@/utils/Firebase";
+import {collection, deleteDoc, doc, Query, query, where} from "@firebase/firestore";
+import {useCollection} from "react-firebase-hooks/firestore";
+import {useAuthState} from "react-firebase-hooks/auth";
+import {NotFound} from "@/components/NotFound";
 
 const FormsTable = () => {
-    const [forms, setForms] = useState<FormBlueprint[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
     const [loadingRows, setLoadingRows] = useState([]);
-    const [page, setPage] = useState<number>(0);
-    const [limit, setLimit] = useState<number>(10);
-    const [total, setTotal] = useState<number>(0);
-    const handlePageChange = (_event: any, newPage: number): void => {
-        setPage(newPage);
-    };
+    const [user, userLoading, userError] = useAuthState(auth);
+
     const {enqueueSnackbar} = useSnackbar();
-    const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
-        setLimit(parseInt(event.target.value));
+
+    const deleteForm = async (id: string) => {
+        setLoadingRows([...loadingRows, id]);
+        await deleteDoc(doc(db, 'formBlueprints', id))
+            .then(() => {
+                enqueueSnackbar('Form deleted successfully', {variant: 'success'});
+            })
+            .catch((err) => {
+                enqueueSnackbar(err.message, {variant: 'error'});
+            })
+            .finally(() => {
+                setLoadingRows((prevLoadingRows) => prevLoadingRows.filter((row) => row !== id));
+            });
     };
 
-    const paginatedForms = applyPagination(
-        forms,
-        page,
-        limit
-    );
-    const deleteForm = async (id: string) => {
-        setLoading(true);
-        await pb.collection('formBlueprints').delete(id).then(() => {
-            setForms(forms.filter((form) => form.id !== id));
-            enqueueSnackbar('Form deleted successfully', {variant: 'success'});
-            setLoading(false);
-        }).catch((err) => {
-            enqueueSnackbar(err.message, {variant: 'error'});
-            setLoading(false);
-        });
-    }
+    const formBlueprintsQuery = useMemo(() => {
+        return query(
+            collection(db, 'formBlueprints'),
+            where('user_id', '==', user?.uid || ''),
+        ) as Query<FormBlueprint>;
+    }, [user, userLoading]);
+
+    const [formBlueprints, loading, error] =
+        useCollection<FormBlueprint>(formBlueprintsQuery);
     useEffect(() => {
-        setLoading(true);
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        pb.collection('formBlueprints')
-            .getList(page, limit, {
-                sort: 'title',
-                order: 'asc',
-                filter: `user_id="${user.id}"`,
-            })
-            .then((data) => {
-                setForms(data.items as unknown as FormBlueprint[]);
-                setTotal(data.totalItems);
-                setPage(data.page);
-                setLimit(data.perPage);
-                setLoading(false);
-            }).catch((err) => {
-            enqueueSnackbar(err.message, {variant: 'error'});
-            setLoading(false);
-        });
-    }, [page, limit]);
+        if (error) {
+            enqueueSnackbar(error.message, {variant: 'error'});
+        }
+        if (!user && !userLoading) {
+            window.location.href = '/auth/login';
+        }
+    }, [user, userLoading, userError, error]);
 
     return (
-        <Card>
-            <Divider/>
-            <TableContainer>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Title</TableCell>
-                            <TableCell>Form ID</TableCell>
-                            <TableCell>User ID</TableCell>
-                            <TableCell>Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {(loading && forms.length === 0)
-                            ? (
-                                [...Array(5)].map((_, index) => (
-                                    <TableRow hover key={index}>
-                                        <TableCell>
-                                            <Skeleton variant="text" width={100}/>
-                                            <Skeleton variant="text" width={100}/>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Skeleton variant="text" width={100}/>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Skeleton variant="text" width={100}/>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Skeleton variant="text" width={100}/>
-                                        </TableCell>
+        <>
+            {!loading && formBlueprints?.docs.length === 0
+                ? <NotFound/>
+                : (
+                    <Card>
+                        <Divider/>
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>#</TableCell>
+                                        <TableCell>Title</TableCell>
+                                        <TableCell>Validity</TableCell>
+                                        <TableCell>Actions</TableCell>
                                     </TableRow>
-                                ))
-                            )
-                            : paginatedForms.map((form) => {
-                                return (
-                                    <TableRow
-                                        hover
-                                        key={form.id}
-                                    >
-                                        <TableCell>
-                                            <Typography
-                                                variant="body1"
-                                                fontWeight="bold"
-                                                color="text.primary"
-                                                gutterBottom
-                                                noWrap
-                                            >
-                                                {form.title}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary" noWrap>
-                                                {format(new Date(form.submissionLimit || new Date()), 'MMMM dd yyyy')}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography
-                                                variant="body1"
-                                                fontWeight="bold"
-                                                color="text.primary"
-                                                gutterBottom
-                                                noWrap
-                                            >
-                                                <Link href={`/forms/${form.id}`} target="_blank">
-                                                    {form.id}
-                                                    <OpenInNewIcon fontSize="inherit" sx={{ml: 1}}/>
-                                                </Link>
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography
-                                                variant="body1"
-                                                fontWeight="bold"
-                                                color="text.primary"
-                                                gutterBottom
-                                                noWrap
-                                            >
-                                                {form.user_id}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography
-                                                variant="body1"
-                                                fontWeight="bold"
-                                                color="text.primary"
-                                                gutterBottom
-                                                noWrap
-                                            >
-                                                <Button
-                                                    variant="contained"
-                                                    href={`/forms/${form.id}`}
-                                                    target="_blank"
+                                </TableHead>
+                                <TableBody>
+                                    {loading || !formBlueprints ? (
+                                        [...Array(5)].map((_, index) => (
+                                            <TableRow hover key={index}>
+                                                <TableCell>
+                                                    <Skeleton variant="text" width={100}/>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Skeleton variant="text" width={100}/>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Skeleton variant="text" width={100}/>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Skeleton variant="text" width={100}/>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (formBlueprints?.docs.map((formBlueprint, index) => {
+                                            const form = formBlueprint.data();
+                                            return (
+                                                <TableRow
+                                                    hover
+                                                    key={formBlueprint.id}
                                                 >
-                                                    Open
-                                                </Button>
-                                                <LoadingButton
-                                                    variant="contained"
-                                                    color="error"
-                                                    onClick={async () => {
-                                                        setLoadingRows([...loadingRows, form.id]); // Set loading state for the specific row
-                                                        await deleteForm(form.id);
-                                                        setLoadingRows(loadingRows.filter((id) => id !== form.id)); // Remove loading state for the specific row
-                                                    }}
-                                                    sx={{ml: 1}}
-                                                    loading={loadingRows.includes(form.id)} // Use loading state for the specific row
-                                                >
-                                                    Delete
-                                                </LoadingButton>
-                                            </Typography>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })
-                        }
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <Box p={2}>
-                <TablePagination
-                    component="div"
-                    count={total}
-                    onPageChange={handlePageChange}
-                    onRowsPerPageChange={handleLimitChange}
-                    page={page}
-                    rowsPerPage={limit}
-                    rowsPerPageOptions={[5, 10, 25, 30]}
-                />
-            </Box>
-        </Card>
+                                                    <TableCell>
+                                                        <Typography
+                                                            variant="body1"
+                                                            fontWeight="bold"
+                                                            color="text.primary"
+                                                            gutterBottom
+                                                            noWrap
+                                                        >
+                                                            {index + 1}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography
+                                                            variant="body1"
+                                                            fontWeight="bold"
+                                                            color="text.primary"
+                                                            gutterBottom
+                                                            noWrap
+                                                        >
+                                                            {form.title}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography
+                                                            variant="body1"
+                                                            fontWeight="bold"
+                                                            color="text.primary"
+                                                            gutterBottom
+                                                            noWrap
+                                                        >
+                                                            {formatDistanceToNow(
+                                                                fromUnixTime(form.submissionLimit.seconds),
+                                                                {addSuffix: true})
+                                                            }
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography
+                                                            variant="body1"
+                                                            fontWeight="bold"
+                                                            color="text.primary"
+                                                            gutterBottom
+                                                            noWrap
+                                                        >
+                                                            <Button
+                                                                variant="contained"
+                                                                href={`/forms/${formBlueprint.id}`}
+                                                                target="_blank"
+                                                            >
+                                                                Open
+                                                            </Button>
+                                                            <LoadingButton
+                                                                variant="contained"
+                                                                color="error"
+                                                                onClick={async () => {
+                                                                    setLoadingRows([...loadingRows, formBlueprint.id]); // Set loading state for the specific row
+                                                                    await deleteForm(formBlueprint.id);
+                                                                    setLoadingRows(loadingRows.filter((id) => id !== formBlueprint.id)); // Remove loading state for the specific row
+                                                                }}
+                                                                sx={{ml: 1}}
+                                                                loading={loadingRows.includes(formBlueprint.id)} // Use loading state for the specific row
+                                                            >
+                                                                Delete
+                                                            </LoadingButton>
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Card>
+                )
+            }
+        </>
     );
 };
 

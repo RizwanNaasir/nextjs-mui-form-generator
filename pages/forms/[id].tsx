@@ -2,13 +2,16 @@ import React, {useEffect, useState} from "react";
 
 import {styled} from "@mui/material/styles";
 
-import {CircularProgress, Container, Divider, Grid} from "@mui/material";
+import {Container, Divider, Grid, Skeleton} from "@mui/material";
 import useFormGenerator from "@/utils/FormGenerator";
 import {useRouter} from "next/router";
-import {pb} from "@/utils/PocketBase";
 import {useSnackbar} from "notistack";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {FormBlueprint} from "@/models/form";
+import {doc, DocumentReference, getDoc, Timestamp} from "@firebase/firestore";
+import {db} from "@/utils/Firebase";
+import {NotFound} from "@/components/NotFound";
+import {formatDistanceToNow, fromUnixTime} from "date-fns";
 
 const StyledRoot = styled('div')(({theme}) => ({
     [theme.breakpoints.up('md')]: {
@@ -28,47 +31,77 @@ const StyledContent = styled('div')(({theme}) => ({
 const Forms = () => {
     const {enqueueSnackbar} = useSnackbar();
     const [loading, setLoading] = useState(false);
-    const [jsonBlueprint, setJsonBlueprint] = useState<FormBlueprint>({
-        title: '',
-        fields: [],
-        submissionLimit: new Date(Date.now() + 60 * 60 * 1000) ,
-        user_id: 0
-    });
+    const [jsonBlueprint, setJsonBlueprint] =
+        useState<FormBlueprint | undefined>(undefined);
     const {formElements, handleSubmit} = useFormGenerator(jsonBlueprint);
 
     const router = useRouter();
     const {id} = router.query;
+
     useEffect(() => {
+        let isMounted = true;
         if (id) {
+            const formRef = doc(
+                db, 'formBlueprints', id as string
+            ) as DocumentReference<FormBlueprint>;
+
             setLoading(true);
-            pb.collection('formBlueprints').getOne(id as string).then((jsonBlueprint) => {
-                setJsonBlueprint(jsonBlueprint as unknown as FormBlueprint);
-                setLoading(false);
-            }).catch((err) => {
-                enqueueSnackbar(err.message, {variant: 'error'});
-                setLoading(false);
-                if (err.status === 404) {
-                    router.push('/404');
-                }
-            });
+            getDoc(formRef)
+                .then((doc) => {
+                    if (isMounted && doc.exists()) {
+                        setJsonBlueprint(doc.data() as FormBlueprint);
+                    } else {
+                        throw new Error('Form not found');
+                    }
+                })
+                .catch(async (err) => {
+                    enqueueSnackbar(err.message, {variant: 'error'});
+                    if (isMounted && err.message === 'Form not found') {
+                        await router.push('/404');
+                    }
+                })
+                .finally(() => {
+                    if (isMounted) {
+                        setLoading(false);
+                    }
+                });
         }
+
+        return () => {
+            isMounted = false;
+        };
     }, [id]);
-    const isFormExpired = (submissionLimit: Date | undefined): boolean => {
+    const isFormExpired = (submissionLimit: Timestamp | undefined): boolean => {
         if (!submissionLimit) {
-            return false; // No submission limit set, form is not expired
+            return false;
         }
-        return (new Date() > new Date(submissionLimit));
+        return new Date() > submissionLimit.toDate();
     };
 
     return (
         <StyledRoot>
             <Container maxWidth="sm">
                 <StyledContent>
-                    {loading ? (
-                        <CircularProgress/>
+                    {(loading || !jsonBlueprint) ? (
+                        <>
+                            <Divider/>
+                            <div>
+                                <Skeleton variant="text" width={480} height={80}/>
+                                <Skeleton variant="text" width={480} height={80}/>
+                                <Skeleton variant="text" width={480} height={80}/>
+                                <Skeleton variant="text" width={480} height={80}/>
+                            </div>
+                            <Divider/>
+                        </>
                     ) : (
                         isFormExpired(jsonBlueprint.submissionLimit) ? (
-                            <p>The form was expired at {jsonBlueprint.submissionLimit.toString()}</p>
+                            <NotFound
+                                message={
+                                    "The form was expired at" + formatDistanceToNow(
+                                        fromUnixTime(jsonBlueprint.submissionLimit.seconds),
+                                        {addSuffix: true})
+                                }
+                            />
                         ) : (
                             <form onSubmit={handleSubmit}>
                                 <h1>{jsonBlueprint.title}</h1>

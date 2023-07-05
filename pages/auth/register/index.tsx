@@ -3,7 +3,7 @@ import {Container, Divider, IconButton, InputAdornment, Link, Stack, TextField, 
 import {LoadingButton} from '@mui/lab';
 import React, {useState} from "react";
 import {useForm} from '@mantine/form';
-import {login, register} from "@/utils/PocketBase";
+import {login, register} from "@/utils/AuthProvider";
 import {useSnackbar} from "notistack";
 
 const StyledRoot = styled('div')(({theme}) => ({

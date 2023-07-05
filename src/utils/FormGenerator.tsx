@@ -17,7 +17,7 @@ import {
 import {generateExcelSheet} from "@/utils/generateExcelSheet";
 import {FormBlueprint, FormGeneratorResult} from "@/models/form";
 
-export default function useFormGenerator(jsonBlueprint: FormBlueprint): FormGeneratorResult {
+export default function useFormGenerator(jsonBlueprint: FormBlueprint | undefined): FormGeneratorResult {
     const [formValues, setFormValues] = useState<{ [key: string]: any }>({});
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,6 +30,12 @@ export default function useFormGenerator(jsonBlueprint: FormBlueprint): FormGene
         event.preventDefault();
         generateExcelSheet(formValues);
     };
+    if (!jsonBlueprint) {
+        return {
+            formElements: <></>,
+            handleSubmit
+        } as unknown as FormGeneratorResult;
+    }
 
     const formElements = jsonBlueprint.fields.map((field, index) => {
         const {
@@ -61,16 +67,20 @@ export default function useFormGenerator(jsonBlueprint: FormBlueprint): FormGene
             case 'checkbox':
                 return (
                     <Grid item xs={xs} key={index}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    name={name}
-                                    checked={formValues[name] || false}
-                                    onChange={handleInputChange}
-                                />
-                            }
-                            label={label}
-                        />
+                        <FormLabel component="legend">{label}</FormLabel>
+                        {options?.map((option, optionIndex) => (
+                            <FormControlLabel
+                                key={optionIndex}
+                                control={
+                                    <Checkbox
+                                        name={name}
+                                        value={option.value}
+                                        onChange={handleInputChange}
+                                    />
+                                }
+                                label={option.label}
+                            />
+                        ))}
                     </Grid>
                 );
             case 'radio':

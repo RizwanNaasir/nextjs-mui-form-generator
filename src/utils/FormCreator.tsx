@@ -2,16 +2,20 @@ import React, {useState} from "react";
 import {Button, Card, CardContent, Divider, MenuItem, Select, TextField} from "@mui/material";
 import {TransitionGroup} from 'react-transition-group';
 import Collapse from '@mui/material/Collapse';
-import {pb} from "@/utils/PocketBase";
 import {useSnackbar} from "notistack";
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import LoadingButton from "@mui/lab/LoadingButton";
 import {ExtendedFormField, FormBlueprint} from "@/models/form";
+import {db as firebaseDB} from "@/utils/Firebase";
+import {addDoc, collection, CollectionReference, getCountFromServer, query, where} from "@firebase/firestore";
+import {useAuthState} from "react-firebase-hooks/auth";
+import {getAuth} from 'firebase/auth';
 
 function FormCreator() {
     const {enqueueSnackbar} = useSnackbar();
+    const [user] = useAuthState(getAuth());
     const [formBlueprints, setFormBlueprints] = useState<FormBlueprint[]>([]);
     const [formTitle, setFormTitle] = useState("");
     const [formFields, setFormFields] = useState<ExtendedFormField[]>([
@@ -82,30 +86,39 @@ function FormCreator() {
             return false;
         }
         setLoading(true);
-        const user_pb = await JSON.parse(localStorage.getItem("user") || "{}");
-        const totalForms = await pb.collection("formBlueprints").getList<FormBlueprint>(1, 1, {filter: `user_id="${user_pb.id}"`});
+        const totalForms = await getCountFromServer(
+            query(
+                collection(firebaseDB, "formBlueprints"),
+                where("user_id", "==", user.uid)
+            )
+        );
         const newFormBlueprint: FormBlueprint = {
             title: formTitle,
             fields: formFields,
             submissionLimit: submissionLimit,
-            user_id: user_pb.id,
+            user_id: user.uid,
         };
-        if (totalForms.totalItems >= 10) {
+        if (totalForms.data().count >= 10) {
             enqueueSnackbar("You have reached the maximum number of forms", {variant: "error"});
             setLoading(false);
             return;
         }
-        await pb.collection("formBlueprints").create<FormBlueprint>(newFormBlueprint).then((res) => {
-            enqueueSnackbar(
-                "Form created successfully",
-                {
-                    variant: "success",
-                    action: () => (
-                        <Button
-                            onClick={() => {
-                                navigator.clipboard.writeText(
-                                    window.location.origin + "/forms/" + res.id
-                                );
+        const formBlueprintsRef = collection(
+            firebaseDB, 'formBlueprints'
+        ) as CollectionReference<FormBlueprint>;
+
+        await addDoc<FormBlueprint>(formBlueprintsRef, newFormBlueprint)
+            .then((res) => {
+                enqueueSnackbar(
+                    "Form created successfully",
+                    {
+                        variant: "success",
+                        action: () => (
+                            <Button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(
+                                        window.location.origin + "/forms/" + res.id
+                                    );
                                 enqueueSnackbar("Copied to clipboard", {variant: "success"});
                             }}
                             color="inherit"

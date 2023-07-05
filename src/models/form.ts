@@ -1,11 +1,13 @@
 import React from "react";
+import firebase from "firebase/compat";
+import Timestamp = firebase.firestore.Timestamp;
 
 export interface FormBlueprint {
     id?: string;
     title: string;
     fields: Array<ExtendedFormField>;
-    submissionLimit?: Date | any;
-    user_id: number;
+    submissionLimit?: Date | any | Timestamp;
+    user_id: string;
 }
 
 export interface FormField {

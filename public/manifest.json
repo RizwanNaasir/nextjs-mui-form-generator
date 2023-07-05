@@ -4,7 +4,7 @@
   "display": "standalone",
   "start_url": ".",
   "short_name": "Tokyo",
-  "name": "Tokyo Free Black NextJS Typescript Admin Dashboard",
+  "name": "Form Generator",
   "icons": [
     {
       "src": "/icon-192x192.png",

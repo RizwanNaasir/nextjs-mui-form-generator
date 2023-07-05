@@ -1,21 +1,11 @@
-import { useContext } from 'react';
+import {useContext} from 'react';
 
-import {
-  Box,
-  alpha,
-  Stack,
-  lighten,
-  Divider,
-  IconButton,
-  Tooltip,
-  styled,
-  useTheme
-} from '@mui/material';
+import {alpha, Box, Divider, IconButton, lighten, Stack, styled, Tooltip, useTheme} from '@mui/material';
 import MenuTwoToneIcon from '@mui/icons-material/MenuTwoTone';
-import { SidebarContext } from 'src/contexts/SidebarContext';
+import {SidebarContext} from 'src/contexts/SidebarContext';
 import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
 
-import HeaderButtons from './Buttons';
+// import HeaderButtons from './Buttons';
 import HeaderUserBox from './Userbox';
 // import HeaderMenu from './Menu';
 
@@ -71,7 +61,7 @@ function Header() {
         {/*<HeaderMenu />*/}
       </Stack>
       <Box display="flex" alignItems="center">
-        <HeaderButtons />
+        {/*<HeaderButtons />*/}
         <HeaderUserBox />
         <Box
           component="span"

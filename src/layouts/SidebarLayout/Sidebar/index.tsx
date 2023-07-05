@@ -1,20 +1,10 @@
-import { useContext } from 'react';
+import {useContext} from 'react';
 import Scrollbar from 'src/components/Scrollbar';
-import { SidebarContext } from 'src/contexts/SidebarContext';
+import {SidebarContext} from 'src/contexts/SidebarContext';
 
-import {
-  Box,
-  Drawer,
-  alpha,
-  styled,
-  Divider,
-  useTheme,
-  lighten,
-  darken
-} from '@mui/material';
+import {alpha, Box, darken, Drawer, lighten, styled, useTheme} from '@mui/material';
 
 import SidebarMenu from './SidebarMenu';
-import Logo from 'src/components/LogoSign';
 
 const SidebarWrapper = styled(Box)(
   ({ theme }) => `
@@ -53,24 +43,8 @@ function Sidebar() {
         }}
       >
         <Scrollbar>
-          <Box mt={3}>
-            <Box
-              mx={2}
-              sx={{
-                width: 52
-              }}
-            >
-              <Logo />
-            </Box>
-          </Box>
-          <Divider
-            sx={{
-              mt: theme.spacing(3),
-              mx: theme.spacing(2),
-              background: theme.colors.alpha.trueWhite[10]
-            }}
-          />
-          <SidebarMenu />
+            <Box mt={3}/>
+            <SidebarMenu/>
         </Scrollbar>
       </SidebarWrapper>
       <Drawer
@@ -92,24 +66,8 @@ function Sidebar() {
           }}
         >
           <Scrollbar>
-            <Box mt={3}>
-              <Box
-                mx={2}
-                sx={{
-                  width: 52
-                }}
-              >
-                <Logo />
-              </Box>
-            </Box>
-            <Divider
-              sx={{
-                mt: theme.spacing(3),
-                mx: theme.spacing(2),
-                background: theme.colors.alpha.trueWhite[10]
-              }}
-            />
-            <SidebarMenu />
+              <Box mt={3}/>
+              <SidebarMenu/>
           </Scrollbar>
         </SidebarWrapper>
       </Drawer>

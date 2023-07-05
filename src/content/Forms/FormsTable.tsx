@@ -122,7 +122,7 @@ const FormsTable = () => {
                                                             gutterBottom
                                                             noWrap
                                                         >
-                                                            {form.title}
+                                                            {form.title.length > 20 ? form.title.substring(0, 20) + '...' : form.title}
                                                         </Typography>
                                                     </TableCell>
                                                     <TableCell>
@@ -148,11 +148,24 @@ const FormsTable = () => {
                                                             noWrap
                                                         >
                                                             <Button
-                                                                variant="contained"
+                                                                onClick={async () => {
+                                                                    await navigator.clipboard.writeText(
+                                                                        `${window.location.origin}/forms/${formBlueprint.id}`
+                                                                    );
+                                                                    enqueueSnackbar("Copied to clipboard", {variant: "success"});
+                                                                }}
+                                                                sx={{ml: 1}}
+                                                                color="inherit"
+                                                            >
+                                                                Copy Link
+                                                            </Button>
+                                                            <Button
+                                                                variant="outlined"
                                                                 href={`/forms/${formBlueprint.id}`}
                                                                 target="_blank"
+                                                                sx={{ml: 1}}
                                                             >
-                                                                Open
+                                                                Preview
                                                             </Button>
                                                             <LoadingButton
                                                                 variant="contained"

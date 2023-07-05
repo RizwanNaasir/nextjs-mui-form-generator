@@ -48,11 +48,8 @@ export default function RegisterPage() {
             await login({
                 user: values.email,
                 password: values.password
-            }).then((res) => {
+            }).then(() => {
                 enqueueSnackbar('Login successful', {variant: 'success'});
-                localStorage.setItem('token', res.token);
-                localStorage.setItem('user', JSON.stringify(res.record));
-                document.cookie = `token=${res.token}; path=/;`;
                 setLoading(false)
                 window.location.href = '/dashboard';
             }).catch((err) => {
@@ -114,8 +111,13 @@ export default function RegisterPage() {
                                 />
                             </Stack>
 
-                            <LoadingButton sx={{my: 3}} fullWidth size="large" type="submit" variant="contained"
-                                           loading={loading}>
+                            <LoadingButton sx={{my: 3}}
+                                           fullWidth
+                                           size="large"
+                                           type="submit"
+                                           variant="contained"
+                                           loading={loading}
+                            >
                                 Register
                             </LoadingButton>
                         </form>

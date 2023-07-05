@@ -21,3 +21,6 @@ yarn-error.log*
 
 /pb_data
 /pb_migrations
+/.firebase
+.firebase-debug.log
+```

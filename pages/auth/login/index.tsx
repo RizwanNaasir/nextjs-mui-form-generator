@@ -97,7 +97,9 @@ export default function LoginPage() {
                                     }}
                                 />
                             </Stack>
-                            <LoadingButton sx={{my: 3}} fullWidth size="large" type="submit" variant="contained"
+                            <LoadingButton sx={{my: 3}} fullWidth
+                                           size="large" type="submit"
+                                           variant="contained"
                                            loading={loading}>
                                 Login
                             </LoadingButton>

@@ -208,12 +208,11 @@ function FormCreator() {
                                         fullWidth
                                         sx={{m: "1rem"}}
                                     >
-                                        <MenuItem value="text">Text</MenuItem>
+                                        <MenuItem value="text">Short answer</MenuItem>
+                                        <MenuItem value="textarea">Paragraph</MenuItem>
                                         <MenuItem value="checkbox">Checkbox</MenuItem>
-                                        <MenuItem value="radio">Radio</MenuItem>
-                                        <MenuItem value="select">Select</MenuItem>
-                                        <MenuItem value="slider">Slider</MenuItem>
-                                        <MenuItem value="rating">Rating</MenuItem>
+                                        <MenuItem value="radio">Multiple Choice</MenuItem>
+                                        <MenuItem value="select">Drop-down</MenuItem>
                                     </Select>
                                 </div>
                                 <Divider sx={{m: "1rem"}}/>

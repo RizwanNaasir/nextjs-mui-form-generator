@@ -8,10 +8,7 @@ import {
     MenuItem,
     Radio,
     RadioGroup,
-    Rating,
     Select,
-    Slider,
-    Switch,
     TextField
 } from '@mui/material';
 import {generateExcelSheet} from "@/utils/generateExcelSheet";
@@ -42,7 +39,6 @@ export default function useFormGenerator(jsonBlueprint: FormBlueprint | undefine
             type,
             label,
             name,
-            multiline,
             xs = 12,
             options
         } = field;
@@ -50,6 +46,7 @@ export default function useFormGenerator(jsonBlueprint: FormBlueprint | undefine
         switch (type) {
             case 'text':
             case 'email':
+            case 'textarea':
                 return (
                     <Grid item xs={xs} key={index}>
                         <TextField
@@ -58,7 +55,8 @@ export default function useFormGenerator(jsonBlueprint: FormBlueprint | undefine
                             type={type}
                             variant="outlined"
                             fullWidth
-                            multiline={multiline}
+                            multiline={type === 'textarea'}
+                            rows={type === 'textarea' ? 4 : undefined}
                             onChange={handleInputChange}
                             value={formValues[name] || ''}
                         />
@@ -118,58 +116,6 @@ export default function useFormGenerator(jsonBlueprint: FormBlueprint | undefine
                                     </MenuItem>
                                 ))}
                             </Select>
-                        </FormControl>
-                    </Grid>
-                );
-            case 'switch':
-                return (
-                    <Grid item xs={xs} key={index}>
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    name={name}
-                                    checked={formValues[name] || false}
-                                    onChange={handleInputChange}
-                                />
-                            }
-                            label={label}
-                        />
-                    </Grid>
-                );
-            case 'slider':
-                return (
-                    <Grid item xs={xs} key={index}>
-                        <FormControl>
-                            <FormLabel component="legend">{label}</FormLabel>
-                            <Slider
-                                name={name}
-                                value={formValues[name] || 0}
-                                onChange={
-                                    (_event, value) => handleInputChange({
-                                        target: {
-                                            name,
-                                            value
-                                        }
-                                    } as unknown as React.ChangeEvent<HTMLInputElement>)
-                                }/>
-                        </FormControl>
-                    </Grid>
-                );
-            case 'rating':
-                return (
-                    <Grid item xs={xs} key={index}>
-                        <FormControl>
-                            <FormLabel component="legend">{label}</FormLabel>
-                            <Rating
-                                name={name}
-                                value={formValues[name] || null}
-                                onChange={(_event, value) => handleInputChange({
-                                    target: {
-                                        name,
-                                        value
-                                    }
-                                } as unknown as React.ChangeEvent<HTMLInputElement>)}
-                            />
                         </FormControl>
                     </Grid>
                 );

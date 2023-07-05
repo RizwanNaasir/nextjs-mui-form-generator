@@ -11,10 +11,9 @@ export interface FormBlueprint {
 }
 
 export interface FormField {
-    type: 'text' | 'email' | 'checkbox' | 'radio' | 'select' | 'switch' | 'slider' | 'rating';
+    type: 'text' | 'textarea' | 'email' | 'checkbox' | 'radio' | 'select';
     label: string;
     name: string;
-    multiline?: boolean;
     xs?: number; // Optional property to specify the `xs` value for Grid item
     options?: Array<{ label: string; value: string }>; // Only required for radio and select fields
 }

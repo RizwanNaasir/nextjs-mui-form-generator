@@ -14,6 +14,8 @@ import NextLink from 'next/link';
 import { SidebarContext } from 'src/contexts/SidebarContext';
 
 import BrightnessLowTwoToneIcon from '@mui/icons-material/BrightnessLowTwoTone';
+import Grid3x3TwoTone from '@mui/icons-material/Grid3x3TwoTone';
+
 
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
@@ -169,7 +171,7 @@ function SidebarMenu() {
           component="div"
           subheader={
             <ListSubheader component="div" disableSticky>
-              Forms
+              Dashboard
             </ListSubheader>
           }
         >
@@ -184,9 +186,9 @@ function SidebarMenu() {
                     disableRipple
                     component="a"
                     onClick={closeSidebar}
-                    startIcon={<BrightnessLowTwoToneIcon />}
+                    startIcon={<Grid3x3TwoTone/>}
                   >
-                    List
+                    Form List
                   </Button>
                 </NextLink>
               </ListItem>
@@ -199,9 +201,9 @@ function SidebarMenu() {
                     disableRipple
                     component="a"
                     onClick={closeSidebar}
-                    startIcon={<BrightnessLowTwoToneIcon />}
+                    startIcon={<BrightnessLowTwoToneIcon/>}
                   >
-                    Create
+                   Form Create
                   </Button>
                 </NextLink>
               </ListItem>

@@ -8,7 +8,7 @@ const themeColors = {
   secondary: '#9EA4C1',
   success: '#57CA22',
   warning: '#FFA319',
-  error: '#FF1943',
+  error: '#fa244e',
   info: '#33C2FF',
   black: '#CBCCD2',
   white: '#111633',

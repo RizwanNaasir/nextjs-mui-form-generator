@@ -62,7 +62,7 @@ export default function LoginPage() {
                         <form onSubmit={form.onSubmit(
                             (values) => handleSubmit(values)
                         )}>
-                            <Typography variant="h4" gutterBottom>
+                            <Typography variant="h3" gutterBottom>
                                 Sign in ⚡
                             </Typography>
 
@@ -84,6 +84,8 @@ export default function LoginPage() {
                                     {...form.getInputProps('email')}
                                     error={Boolean(form.errors.email)}
                                     helperText={form.errors.email}
+
+
                                 />
 
                                 <TextField

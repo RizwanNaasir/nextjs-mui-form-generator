@@ -14,6 +14,7 @@ import {useAuthState} from "react-firebase-hooks/auth";
 import {getAuth} from 'firebase/auth';
 import {DateTimePicker} from "@mui/lab";
 
+
 function FormCreator() {
     const {enqueueSnackbar} = useSnackbar();
     const [user, userLoading, userError] = useAuthState(getAuth());
@@ -158,7 +159,7 @@ function FormCreator() {
         <div>
             <h2>Create a Form</h2>
             <TextField
-                label="Form Title"
+                label="Title"
                 value={formTitle}
                 onChange={(e) => setFormTitle(e.target.value)}
                 fullWidth
@@ -263,7 +264,7 @@ function FormCreator() {
                                 )}
                                 <Button
                                     variant="contained"
-                                    color="secondary"
+                                    color="error"
                                     onClick={() => handleRemoveQuestion(questionIndex)}
                                     sx={{float: "right", m: 2}}
                                 >

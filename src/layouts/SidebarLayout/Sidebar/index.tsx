@@ -5,6 +5,7 @@ import {SidebarContext} from 'src/contexts/SidebarContext';
 import {alpha, Box, darken, Drawer, lighten, styled, useTheme} from '@mui/material';
 
 import SidebarMenu from './SidebarMenu';
+import Footer from "@/components/Footer";
 
 const SidebarWrapper = styled(Box)(
   ({ theme }) => `
@@ -70,6 +71,7 @@ function Sidebar() {
               <SidebarMenu/>
           </Scrollbar>
         </SidebarWrapper>
+          <Footer />
       </Drawer>
     </>
   );

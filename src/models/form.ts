@@ -6,6 +6,7 @@ export interface FormBlueprint {
     id?: string;
     title: string;
     fields: Array<ExtendedFormField>;
+    responses?: Array<FormField[]>;
     submissionLimit?: Date | any | Timestamp;
     user_id: string;
 }
@@ -25,5 +26,6 @@ export interface ExtendedFormField extends FormField {
 export interface FormGeneratorResult {
     formValues: FormField[];
     formElements: JSX.Element[];
-    handleSubmit: () => void;
+    isSubmitting: boolean;
+    handleSubmit: () => Promise<void>;
 }

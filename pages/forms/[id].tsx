@@ -33,7 +33,7 @@ const Forms = () => {
     const [loading, setLoading] = useState(false);
     const [jsonBlueprint, setJsonBlueprint] =
         useState<FormBlueprint | undefined>(undefined);
-    const {formElements, handleSubmit} = useFormGenerator(jsonBlueprint);
+    const {formElements, handleSubmit, isSubmitting} = useFormGenerator(jsonBlueprint);
 
     const router = useRouter();
     const {id} = router.query;
@@ -114,7 +114,7 @@ const Forms = () => {
                                     type="submit"
                                     variant="contained"
                                     color="primary"
-                                    loading={loading}
+                                    loading={loading || isSubmitting}
                                     sx={{float: 'right'}}
                                 >
                                     Submit

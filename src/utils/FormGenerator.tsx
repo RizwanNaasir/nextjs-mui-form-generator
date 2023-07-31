@@ -11,21 +11,48 @@ import {
     Select,
     TextField
 } from '@mui/material';
-import {generateExcelSheet} from "@/utils/generateExcelSheet";
-import {FormBlueprint, FormGeneratorResult} from "@/models/form";
+import {FormBlueprint, FormField, FormGeneratorResult} from "@/models/form";
+import {useRouter} from "next/router";
+import {doc, DocumentReference, getDoc, updateDoc} from "@firebase/firestore";
+import {db} from "@/utils/Firebase";
+import {useSnackbar} from "notistack";
 
 export default function useFormGenerator(jsonBlueprint: FormBlueprint | undefined): FormGeneratorResult {
-    const [formValues, setFormValues] = useState<{ [key: string]: any }>({});
-
+    const [formValues, setFormValues] = useState<FormField[]>([]);
+    const [loading, setLoading] = useState(false);
+    const {enqueueSnackbar} = useSnackbar();
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value, type, checked} = event.target;
         const inputValue = type === 'checkbox' ? checked : value;
         setFormValues((prevValues) => ({...prevValues, [name]: inputValue}));
     };
-
-    const handleSubmit = (event: React.FormEvent) => {
+    const router = useRouter();
+    const {id} = router.query;
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        generateExcelSheet(formValues);
+
+        if (id) {
+            setLoading(true);
+            const documentReference = doc(
+                db, 'formBlueprints', id as string
+            ) as DocumentReference<FormBlueprint>;
+            const form = (await getDoc(documentReference)).data() as FormBlueprint;
+            updateDoc(documentReference, {
+                responses: [...form.responses || [], formValues]
+            })
+                .then(() => {
+                    enqueueSnackbar('Form submitted successfully', {variant: 'success'});
+                })
+                .catch(async (err) => {
+                    enqueueSnackbar(err.message, {variant: 'error'});
+                    if (err.message === 'Form not found') {
+                        await router.push('/404');
+                    }
+                })
+                .finally(() => {
+                    setLoading(false)
+                });
+        }
     };
     if (!jsonBlueprint) {
         return {
@@ -127,6 +154,7 @@ export default function useFormGenerator(jsonBlueprint: FormBlueprint | undefine
     return {
         formValues,
         formElements,
+        isSubmitting: loading,
         handleSubmit,
     } as FormGeneratorResult;
 }

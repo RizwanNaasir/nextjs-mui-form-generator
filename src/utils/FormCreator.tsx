@@ -22,7 +22,7 @@ function FormCreator() {
     const [formFields, setFormFields] = useState<ExtendedFormField[]>([
         {type: "text", label: "", name: "", options: []},
     ]);
-    const [submissionLimit, setSubmissionLimit] = useState<Date | undefined>(new Date(Date.now() + 300 * 60 * 1000));
+    const [submissionLimit, setSubmissionLimit] = useState<Date>(new Date());
     const [loading, setLoading] = useState(false);
     const handleAddQuestion = () => {
         const previousQuestionHasLabel = formFields[formFields.length - 1]?.label;
@@ -167,11 +167,7 @@ function FormCreator() {
             />
             <DateTimePicker
                 label="Submission Limit"
-                value={
-                    submissionLimit
-                        ? submissionLimit.toISOString().slice(0, 16)
-                        : new Date().toISOString().slice(0, 16)
-                }
+                value={submissionLimit ? submissionLimit : new Date()}
                 onChange={(e) => setSubmissionLimit(new Date(e))}
                 renderInput={(props) => (
                     <TextField

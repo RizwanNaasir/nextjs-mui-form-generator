@@ -8,6 +8,7 @@ import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 import {useAuthState} from "react-firebase-hooks/auth";
 import {auth} from "@/utils/Firebase";
 import {signOut} from "@firebase/auth";
+import {enqueueSnackbar} from "notistack";
 
 const UserBoxButton = styled(Button)(
     ({theme}) => `
@@ -68,7 +69,7 @@ function HeaderUserBox() {
           {loading ? (
               <CircularProgress/>
           ) : error ? (
-              <p>Error: {error.message}</p>
+              enqueueSnackbar(error.message, {variant: "error"})
           ) : user ? (
               <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
                   <Avatar variant="rounded" alt={user.displayName} src={user.displayName}/>
@@ -83,7 +84,12 @@ function HeaderUserBox() {
                   </Hidden>
               </UserBoxButton>
           ) : (
-              <p>Please sign in</p>
+              <Button
+                  href="auth/login"
+                  variant="outlined"
+              >
+                  Login
+              </Button>
           )}
           <Popover
               anchorEl={ref.current}

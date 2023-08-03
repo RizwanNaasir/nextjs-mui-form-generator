@@ -22,6 +22,7 @@ import {collection, deleteDoc, doc, Query, query, where} from "@firebase/firesto
 import {useCollection} from "react-firebase-hooks/firestore";
 import {useAuthState} from "react-firebase-hooks/auth";
 import {NotFound} from "@/components/NotFound";
+import Modal from "@/components/Modals";
 
 const FormsTable = () => {
     const [loadingRows, setLoadingRows] = useState([]);
@@ -147,18 +148,7 @@ const FormsTable = () => {
                                                             gutterBottom
                                                             noWrap
                                                         >
-                                                            <Button
-                                                                onClick={async () => {
-                                                                    await navigator.clipboard.writeText(
-                                                                        `${window.location.origin}/forms/${formBlueprint.id}`
-                                                                    );
-                                                                    enqueueSnackbar("Copied to clipboard", {variant: "success"});
-                                                                }}
-                                                                sx={{ml: 1}}
-                                                                color="inherit"
-                                                            >
-                                                                Copy Link
-                                                            </Button>
+                                                            <Modal title="Send"/>
                                                             <Button
                                                                 variant="outlined"
                                                                 href={`/forms/${formBlueprint.id}`}

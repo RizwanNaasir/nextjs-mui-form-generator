@@ -148,7 +148,7 @@ const FormsTable = () => {
                                                             gutterBottom
                                                             noWrap
                                                         >
-                                                            <Modal title="Send"/>
+                                                            <Modal title="Send" formBlueprint={formBlueprint}/>
                                                             <Button
                                                                 variant="outlined"
                                                                 href={`/forms/${formBlueprint.id}`}

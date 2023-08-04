@@ -1,7 +1,7 @@
 import SidebarLayout from '@/layouts/SidebarLayout';
 import PropTypes from 'prop-types';
 import {ReactChild, ReactFragment, ReactPortal, SyntheticEvent, useState} from 'react';
-import {Box, IconButton, Stack, Tab, TextField, Typography} from '@mui/material';
+import {Autocomplete, Box, Chip, IconButton, Stack, Tab, TextField, Typography} from '@mui/material';
 import Button from '@mui/material/Button';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
@@ -13,6 +13,7 @@ import {useSnackbar} from "notistack";
 import {FormBlueprint} from "@/models/form";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import LoadingButton from "@mui/lab/LoadingButton";
+import {useForm} from "@mantine/form";
 
 
 function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose: any }) {
@@ -20,6 +21,14 @@ function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose:
     const [value, setValue] = useState(1);
     const {enqueueSnackbar} = useSnackbar();
 
+    const [loading, setLoading] = useState(false);
+    const mailForm = useForm({
+        initialValues: {
+            emails: [],
+            subject: "",
+            body: ""
+        }
+    })
 
     const handleClose = () => {
     };
@@ -27,6 +36,32 @@ function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose:
     const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
+
+    const sendMail = async () => {
+        setLoading(true);
+        const data = mailForm.values;
+        const response = await fetch("/api/send-email", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                ...data,
+                formLink: `${window.location.origin}/forms/${formBlueprint.id}`
+            })
+        });
+        setLoading(false);
+        const result = await response.json();
+        if (response.ok) {
+            enqueueSnackbar(`Mail sent successfully. Sent: ${result?.sent}`, {
+                variant: "success"
+            });
+        } else {
+            enqueueSnackbar(`Mail could not be sent. Failed: ${result?.failed}`, {
+                variant: "error"
+            });
+        }
+    }
 
     return (
         <Dialog onClose={handleClose} open={open} maxWidth="sm" fullWidth={true}>
@@ -72,15 +107,62 @@ function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose:
                         <Typography variant="h6" gutterBottom component="div">
                             Email
                         </Typography>
-                        <TextField id="emails" label="To" variant="outlined" fullWidth/>
-                        <TextField id="subject" label="Subject" variant="outlined" fullWidth/>
-                        <TextField id="message" label="Message" variant="outlined" multiline rows={4} fullWidth/>
+                        <Autocomplete
+                            multiple
+                            id="emails"
+                            freeSolo
+                            fullWidth
+                            options={[]}
+                            value={mailForm.values.emails}
+                            onChange={(_event, newValue) => {
+                                mailForm.setFieldValue("emails", newValue);
+                            }}
+                            renderTags={(value, getTagProps) => {
+                                if (!Array.isArray(value)) {
+                                    return []; // Return an empty array if 'value' is not an array
+                                }
+                                return value.map((option, index) => (
+                                    <Chip
+                                        key={option}
+                                        variant="outlined"
+                                        label={option}
+                                        {...getTagProps({index})}
+                                    />
+                                ));
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    variant="outlined"
+                                    label="Emails"
+                                    fullWidth
+                                    {...mailForm.getInputProps("emails")}
+                                    placeholder="Enter email addresses and press enter"
+                                />
+                            )}
+                        />
+                        <TextField
+                            id="subject"
+                            label="Subject"
+                            variant="outlined"
+                            fullWidth
+                            {...mailForm.getInputProps('subject')}
+                        />
+                        <TextField
+                            id="message"
+                            label="Message"
+                            variant="outlined"
+                            multiline
+                            rows={4}
+                            fullWidth
+                            {...mailForm.getInputProps('body')}
+                        />
                     </Box>
                     <LoadingButton
                         variant="contained"
-                        loadingIndicator="Loading..."
-                        loading={false}
+                        loading={loading}
                         sx={{mt: 2, float: "right"}}
+                        onClick={sendMail}
                     >
                         Send
                     </LoadingButton>

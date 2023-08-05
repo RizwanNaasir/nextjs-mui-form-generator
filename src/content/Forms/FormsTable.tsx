@@ -1,8 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {formatDistanceToNow, fromUnixTime} from 'date-fns';
-import PropTypes from 'prop-types';
 import {
-    Button,
     Card,
     Divider,
     Skeleton,
@@ -12,6 +10,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import {useSnackbar} from "notistack";
@@ -23,6 +22,8 @@ import {useCollection} from "react-firebase-hooks/firestore";
 import {useAuthState} from "react-firebase-hooks/auth";
 import {NotFound} from "@/components/NotFound";
 import Modal from "@/components/Modals";
+import {generateExcelSheet} from "@/utils/generateExcelSheet";
+import PropTypes from "prop-types";
 
 const FormsTable = () => {
     const [loadingRows, setLoadingRows] = useState([]);
@@ -43,6 +44,10 @@ const FormsTable = () => {
                 setLoadingRows((prevLoadingRows) => prevLoadingRows.filter((row) => row !== id));
             });
     };
+
+    const exportForm = (formBlueprint: FormBlueprint) => async () => {
+        generateExcelSheet(formBlueprint)
+    }
 
     const formBlueprintsQuery = useMemo(() => {
         return query(
@@ -149,14 +154,23 @@ const FormsTable = () => {
                                                             noWrap
                                                         >
                                                             <Modal title="Send" formBlueprint={formBlueprint}/>
-                                                            <Button
-                                                                variant="outlined"
-                                                                href={`/forms/${formBlueprint.id}`}
-                                                                target="_blank"
-                                                                sx={{ml: 1}}
-                                                            >
-                                                                Preview
-                                                            </Button>
+                                                            <Tooltip title={
+                                                                !formBlueprint.data().responses
+                                                                    ? 'No responses yet'
+                                                                    : 'Export responses'
+                                                            }>
+                                                                <span>
+                                                                    <LoadingButton
+                                                                        variant="outlined"
+                                                                        sx={{ml: 1}}
+                                                                        disabled={!formBlueprint.data().responses}
+                                                                        onClick={exportForm(formBlueprint.data())}
+                                                                        loading={loadingRows.includes(formBlueprint.id)} // Use loading state for the specific row
+                                                                    >
+                                                                    Export
+                                                                </LoadingButton>
+                                                                </span>
+                                                            </Tooltip>
                                                             <LoadingButton
                                                                 variant="contained"
                                                                 color="error"

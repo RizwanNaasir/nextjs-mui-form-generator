@@ -1,14 +1,18 @@
 import {utils, writeFile} from 'xlsx';
+import {FormBlueprint} from "@/models/form";
 
 const {sheet_add_aoa} = utils;
 
-export function generateExcelSheet(formValues) {
-    console.log(formValues);
+export function generateExcelSheet(formBlueprint: FormBlueprint) {
+    const questions = formBlueprint.fields.map((field) => field.label);
+    const responses = formBlueprint.responses.map((response, index) => {
+        const rowData = questions.map((question) => response[question.replace(/\s+/g, "-").toLowerCase()] || "");
+        rowData.unshift(index + 1); // Adding index as the first column
+        return rowData;
+    });
 
-    const questions = Object.keys(formValues);
-    const responses = Object.values(formValues);
-
-    const data = [questions, responses];
+    const headerRow = ["Sr#", ...questions];
+    const data = [headerRow, ...responses];
 
     const worksheet = sheet_add_aoa({}, data, {origin: -1});
     const workbook = {

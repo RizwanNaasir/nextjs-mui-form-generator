@@ -209,7 +209,7 @@ function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose:
 SimpleDialog.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
-    selectedValue: PropTypes.string.isRequired
+    formBlueprint: PropTypes.object.isRequired,
 };
 
 function Modals({title, formBlueprint}) {

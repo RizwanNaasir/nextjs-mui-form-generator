@@ -20,11 +20,11 @@ function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose:
     const {open, formBlueprint, onClose} = props;
     const [value, setValue] = useState(1);
     const {enqueueSnackbar} = useSnackbar();
+    const [emails, setEmails] = useState([]);
 
     const [loading, setLoading] = useState(false);
     const mailForm = useForm({
         initialValues: {
-            emails: [],
             subject: "",
             body: ""
         }
@@ -39,7 +39,10 @@ function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose:
 
     const sendMail = async () => {
         setLoading(true);
-        const data = mailForm.values;
+        const data = {
+            ...mailForm.values,
+            emails,
+        };
         const response = await fetch("/api/send-email", {
             method: "POST",
             headers: {
@@ -109,35 +112,29 @@ function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose:
                         </Typography>
                         <Autocomplete
                             multiple
-                            id="emails"
                             freeSolo
                             fullWidth
                             options={[]}
-                            value={mailForm.values.emails}
+                            value={emails}
                             onChange={(_event, newValue) => {
-                                mailForm.setFieldValue("emails", newValue);
+                                setEmails(newValue);
                             }}
-                            renderTags={(value, getTagProps) => {
-                                if (!Array.isArray(value)) {
-                                    return []; // Return an empty array if 'value' is not an array
-                                }
-                                return value.map((option, index) => (
+                            renderTags={(value, getTagProps) =>
+                                value.map((option, index) => (
                                     <Chip
                                         key={option}
                                         variant="outlined"
                                         label={option}
                                         {...getTagProps({index})}
                                     />
-                                ));
-                            }}
+                                ))
+                            }
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
                                     variant="outlined"
-                                    label="Emails"
-                                    fullWidth
-                                    {...mailForm.getInputProps("emails")}
-                                    placeholder="Enter email addresses and press enter"
+                                    label="Enter email addresses"
+                                    placeholder="Emails"
                                 />
                             )}
                         />

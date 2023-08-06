@@ -153,7 +153,7 @@ const FormsTable = () => {
                                                             gutterBottom
                                                             noWrap
                                                         >
-                                                            <Modal title="Send" formBlueprint={formBlueprint.data()}/>
+                                                            <Modal title="Send" formBlueprint={formBlueprint}/>
                                                             <Tooltip title={
                                                                 !formBlueprint.data().responses
                                                                     ? 'No responses yet'

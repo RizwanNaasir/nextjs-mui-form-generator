@@ -16,16 +16,17 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import {useForm} from "@mantine/form";
 import {isFormExpired} from "@/utils/formUtils";
 import {formatDistanceToNow, fromUnixTime} from "date-fns";
+import {QueryDocumentSnapshot} from "@firebase/firestore";
 
 
-function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose: any }) {
+function SimpleDialog(props: { formBlueprint: QueryDocumentSnapshot<FormBlueprint>; open: any; onClose: any }) {
     const {open, formBlueprint, onClose} = props;
     const [value, setValue] = useState(1);
     const {enqueueSnackbar} = useSnackbar();
     const [emails, setEmails] = useState([]);
     const [email, setEmail] = useState('');
-
     const [loading, setLoading] = useState(false);
+
     const mailForm = useForm({
         initialValues: {
             subject: "",
@@ -230,7 +231,7 @@ SimpleDialog.propTypes = {
     formBlueprint: PropTypes.object.isRequired,
 };
 
-function Modals({title, formBlueprint}: { title: string, formBlueprint: FormBlueprint }) {
+function Modals({title, formBlueprint}: { title: string, formBlueprint: QueryDocumentSnapshot<FormBlueprint> }) {
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
@@ -239,14 +240,15 @@ function Modals({title, formBlueprint}: { title: string, formBlueprint: FormBlue
     const handleClose = () => {
         setOpen(false);
     };
-    const formExpired = isFormExpired(formBlueprint.submissionLimit);
+    const form = formBlueprint.data();
+    const formExpired = isFormExpired(form.submissionLimit);
     return (
         <>
             <Tooltip title={
                 !formExpired
                     ? "Share form"
                     : `Form expired ${formatDistanceToNow(
-                        fromUnixTime(formBlueprint.submissionLimit.seconds),
+                        fromUnixTime(form.submissionLimit.seconds),
                         {addSuffix: true})
                     }`
             }>

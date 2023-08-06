@@ -21,6 +21,7 @@ function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose:
     const [value, setValue] = useState(1);
     const {enqueueSnackbar} = useSnackbar();
     const [emails, setEmails] = useState([]);
+    const [email, setEmail] = useState('');
 
     const [loading, setLoading] = useState(false);
     const mailForm = useForm({
@@ -116,6 +117,10 @@ function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose:
                             fullWidth
                             options={[]}
                             value={emails}
+                            inputValue={email}
+                            onInputChange={(_event, newValue) => {
+                                setEmail(newValue);
+                            }}
                             onChange={(_event, newValue) => {
                                 setEmails(newValue);
                             }}
@@ -129,15 +134,26 @@ function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose:
                                     />
                                 ))
                             }
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    variant="outlined"
-                                    label="Enter email addresses"
-                                    placeholder="Emails"
-                                />
-                            )}
+                            renderInput={(params) => {
+                                const onBlur = () => {
+                                    if (email.length > 0) {
+                                        setEmails([...emails, email]);
+                                        setEmail('');
+                                    }
+                                }
+
+                                return (
+                                    <TextField
+                                        {...params}
+                                        variant="outlined"
+                                        label="Enter email addresses"
+                                        placeholder="Emails"
+                                        onBlur={onBlur}
+                                    />
+                                )
+                            }}
                         />
+
                         <TextField
                             id="subject"
                             label="Subject"

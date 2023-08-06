@@ -8,10 +8,11 @@ import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {FormBlueprint} from "@/models/form";
-import {doc, DocumentReference, getDoc, Timestamp} from "@firebase/firestore";
+import {doc, DocumentReference, getDoc} from "@firebase/firestore";
 import {db} from "@/utils/Firebase";
 import {NotFound} from "@/components/NotFound";
 import {formatDistanceToNow, fromUnixTime} from "date-fns";
+import {isFormExpired} from "@/utils/formUtils";
 
 const StyledRoot = styled('div')(({theme}) => ({
     [theme.breakpoints.up('md')]: {
@@ -71,12 +72,6 @@ const Forms = () => {
             isMounted = false;
         };
     }, [id]);
-    const isFormExpired = (submissionLimit: Timestamp | undefined): boolean => {
-        if (!submissionLimit) {
-            return false;
-        }
-        return new Date() > submissionLimit.toDate();
-    };
 
     return (
         <StyledRoot>

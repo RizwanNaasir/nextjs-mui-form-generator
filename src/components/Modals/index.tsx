@@ -1,7 +1,7 @@
 import SidebarLayout from '@/layouts/SidebarLayout';
 import PropTypes from 'prop-types';
 import {ReactChild, ReactFragment, ReactPortal, SyntheticEvent, useState} from 'react';
-import {Autocomplete, Box, Chip, IconButton, Stack, Tab, TextField, Typography} from '@mui/material';
+import {Autocomplete, Box, Chip, IconButton, Stack, Tab, TextField, Tooltip, Typography} from '@mui/material';
 import Button from '@mui/material/Button';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
@@ -14,6 +14,8 @@ import {FormBlueprint} from "@/models/form";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {useForm} from "@mantine/form";
+import {isFormExpired} from "@/utils/formUtils";
+import {formatDistanceToNow, fromUnixTime} from "date-fns";
 
 
 function SimpleDialog(props: { formBlueprint: FormBlueprint; open: any; onClose: any }) {
@@ -228,7 +230,7 @@ SimpleDialog.propTypes = {
     formBlueprint: PropTypes.object.isRequired,
 };
 
-function Modals({title, formBlueprint}) {
+function Modals({title, formBlueprint}: { title: string, formBlueprint: FormBlueprint }) {
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
@@ -237,11 +239,27 @@ function Modals({title, formBlueprint}) {
     const handleClose = () => {
         setOpen(false);
     };
+    const formExpired = isFormExpired(formBlueprint.submissionLimit);
     return (
         <>
-            <Button variant="outlined" onClick={handleClickOpen}>
-                {title}
-            </Button>
+            <Tooltip title={
+                !formExpired
+                    ? "Share form"
+                    : `Form expired ${formatDistanceToNow(
+                        fromUnixTime(formBlueprint.submissionLimit.seconds),
+                        {addSuffix: true})
+                    }`
+            }>
+                <span>
+                    <Button
+                        variant="outlined"
+                        onClick={handleClickOpen}
+                        disabled={formExpired}
+                    >
+                        {title}
+                    </Button>
+                </span>
+            </Tooltip>
             <SimpleDialog
                 formBlueprint={formBlueprint}
                 open={open}

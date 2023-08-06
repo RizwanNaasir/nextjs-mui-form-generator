@@ -6,11 +6,17 @@ const {sheet_add_aoa} = utils;
 export function generateExcelSheet(formBlueprint: FormBlueprint) {
     const questions = formBlueprint.fields.map((field) => field.label);
     const responses = formBlueprint.responses.map((response, index) => {
-        const rowData = questions.map((question) => response[question.replace(/\s+/g, "-").toLowerCase()] || "");
+        const rowData = questions.map((question) => {
+            const responseValue = response[question.replace(/\s+/g, "-").toLowerCase()];
+            if (Array.isArray(responseValue)) {
+                return responseValue.join(', ');
+            } else {
+                return responseValue || "";
+            }
+        });
         rowData.unshift(index + 1); // Adding index as the first column
         return rowData;
     });
-
     const headerRow = ["Sr#", ...questions];
     const data = [headerRow, ...responses];
 
@@ -22,3 +28,4 @@ export function generateExcelSheet(formBlueprint: FormBlueprint) {
 
     writeFile(workbook, 'form_responses.xlsx', {type: 'buffer', bookType: 'xlsx'});
 }
+

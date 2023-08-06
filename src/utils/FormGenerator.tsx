@@ -23,9 +23,31 @@ export default function useFormGenerator(jsonBlueprint: FormBlueprint | undefine
     const {enqueueSnackbar} = useSnackbar();
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value, type, checked} = event.target;
-        const inputValue = type === 'checkbox' ? checked : value;
-        setFormValues((prevValues) => ({...prevValues, [name]: inputValue}));
+        setFormValues((prevValues) => {
+            if (type === 'checkbox') {
+                if (checked) {
+                    // If checkbox is checked and the checkbox value isn't already in the array, add it
+                    return {
+                        ...prevValues,
+                        [name]: Array.isArray(prevValues[name]) ? [...prevValues[name], value] : [value],
+                    };
+                } else {
+                    // If checkbox is unchecked, remove the checkbox value from the array
+                    return {
+                        ...prevValues,
+                        [name]: Array.isArray(prevValues[name]) ? prevValues[name].filter((v: string) => v !== value) : [],
+                    };
+                }
+            } else {
+                // For non-checkbox inputs, just set the value normally
+                return {
+                    ...prevValues,
+                    [name]: value,
+                };
+            }
+        });
     };
+
     const router = useRouter();
     const {id} = router.query;
     const handleSubmit = async (event: React.FormEvent) => {

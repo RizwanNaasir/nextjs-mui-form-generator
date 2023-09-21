@@ -1,7 +1,5 @@
 import React, {useEffect, useState} from "react";
-
 import {styled} from "@mui/material/styles";
-
 import {Container, Divider, Grid, Skeleton} from "@mui/material";
 import useFormGenerator from "@/utils/FormGenerator";
 import {useRouter} from "next/router";

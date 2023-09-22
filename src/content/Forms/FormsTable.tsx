@@ -30,7 +30,6 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { NotFound } from '@/components/NotFound';
 import Modal from '@/components/Modals';
 import { generateExcelSheet } from '@/utils/generateExcelSheet';
-import PropTypes from 'prop-types';
 
 const FormsTable = () => {
   const [loadingRows, setLoadingRows] = useState([]);
@@ -218,14 +217,6 @@ const FormsTable = () => {
       )}
     </>
   );
-};
-
-FormsTable.propTypes = {
-  forms: PropTypes.array.isRequired
-};
-
-FormsTable.defaultProps = {
-  forms: []
 };
 
 export default FormsTable;

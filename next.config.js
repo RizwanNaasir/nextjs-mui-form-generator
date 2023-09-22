@@ -12,7 +12,7 @@ const redirects = {
         source: '/',
         destination: '/dashboard',
         permanent: true
-      },
+      }
     ];
   }
 };

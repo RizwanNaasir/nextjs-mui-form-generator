@@ -16,7 +16,6 @@ import { SidebarContext } from 'src/contexts/SidebarContext';
 import BrightnessLowTwoToneIcon from '@mui/icons-material/BrightnessLowTwoTone';
 import Grid3x3TwoTone from '@mui/icons-material/Grid3x3TwoTone';
 
-
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
   .MuiList-root {
@@ -186,7 +185,7 @@ function SidebarMenu() {
                     disableRipple
                     component="a"
                     onClick={closeSidebar}
-                    startIcon={<Grid3x3TwoTone/>}
+                    startIcon={<Grid3x3TwoTone />}
                   >
                     Form List
                   </Button>
@@ -201,9 +200,9 @@ function SidebarMenu() {
                     disableRipple
                     component="a"
                     onClick={closeSidebar}
-                    startIcon={<BrightnessLowTwoToneIcon/>}
+                    startIcon={<BrightnessLowTwoToneIcon />}
                   >
-                   Form Create
+                    Form Create
                   </Button>
                 </NextLink>
               </ListItem>

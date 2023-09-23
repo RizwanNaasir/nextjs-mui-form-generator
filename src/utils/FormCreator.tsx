@@ -34,8 +34,7 @@ function FormCreator() {
   const [user, userLoading, userError] = useAuthState(getAuth());
   const [formBlueprints, setFormBlueprints] = useState<FormBlueprint[]>([]);
   const [formTitle, setFormTitle] = useState('');
-  const [formFields, setFormFields] = useState<ExtendedFormField[]>([
-    { type: 'text', label: '', name: '', options: [] }
+  const [formFields, setFormFields] = useState<ExtendedFormField[]>([{ type: 'text', label: '', name: '', options: [] }
   ]);
   const [submissionLimit, setSubmissionLimit] = useState<Date>(new Date());
   const [loading, setLoading] = useState(false);

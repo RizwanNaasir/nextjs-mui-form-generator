@@ -1,12 +1,11 @@
 import { Box, Container, Link, Typography, styled } from '@mui/material';
 
 const FooterWrapper = styled(Container)(
-  ({ theme }) => `
-        margin-top: ${theme.spacing(4)};
+  ({ theme }) => `  margin-top: ${theme.spacing(4)};
 `
 );
 
-function Footer() {
+export default function Footer() {
   return (
     <FooterWrapper className="footer-wrapper">
       <Box
@@ -25,7 +24,7 @@ function Footer() {
           sx={{
             pt: { xs: 2, md: 0 }
           }}
-          variant="subtitle1"
+          variant="subtitle2"
         >
           Crafted by{' '}
           <Link
@@ -41,4 +40,3 @@ function Footer() {
   );
 }
 
-export default Footer;

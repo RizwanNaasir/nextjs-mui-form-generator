@@ -24,7 +24,7 @@ import Dialog from '@mui/material/Dialog';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import Mail from '@mui/icons-material/Mail';
 import Link from '@mui/icons-material/Link';
-import Code from '@mui/icons-material/Code';
+// import Code from '@mui/icons-material/Code';
 import { useSnackbar } from 'notistack';
 import { FormBlueprint } from '@/models/form';
 import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
@@ -119,7 +119,7 @@ function SimpleDialog(props: {
               >
                 <Tab label={<Mail />} value="1" />
                 <Tab label={<Link />} value="2" />
-                <Tab label={<Code />} value="3" />
+                {/*<Tab label={<Code />} value="3" />*/}
               </TabList>
             </div>
           </Stack>
@@ -221,25 +221,25 @@ function SimpleDialog(props: {
             <em>{`${window.location.origin}/forms/${formBlueprint.id}`}</em>
           </Button>
         </TabPanel>
-        <TabPanel value="3">
-          <Typography variant="h6" gutterBottom component="div">
-            Embed code
-          </Typography>
-          <Button
-            onClick={async () => {
-              await navigator.clipboard.writeText(
-                `${window.location.origin}/forms/${formBlueprint.id}`
-              );
-              enqueueSnackbar('Copied to clipboard', { variant: 'success' });
-            }}
-            sx={{ ml: 1 }}
-            color="inherit"
-          >
-            {String.raw({
-              raw: `<iframe src="${window.location.origin}/forms/${formBlueprint.id}" width="100%" height="100%" ></iframe>`
-            })}
-          </Button>
-        </TabPanel>
+        {/*<TabPanel value="3">*/}
+        {/*  <Typography variant="h6" gutterBottom component="div">*/}
+        {/*    Embed code*/}
+        {/*  </Typography>*/}
+        {/*  <Button*/}
+        {/*    onClick={async () => {*/}
+        {/*      await navigator.clipboard.writeText(*/}
+        {/*        `${window.location.origin}/forms/${formBlueprint.id}`*/}
+        {/*      );*/}
+        {/*      enqueueSnackbar('Copied to clipboard', { variant: 'success' });*/}
+        {/*    }}*/}
+        {/*    sx={{ ml: 1 }}*/}
+        {/*    color="inherit"*/}
+        {/*  >*/}
+        {/*    {String.raw({*/}
+        {/*      raw: `<iframe src="${window.location.origin}/forms/${formBlueprint.id}" width="100%" height="100%" ></iframe>`*/}
+        {/*    })}*/}
+        {/*  </Button>*/}
+        {/*</TabPanel>*/}
       </TabContext>
     </Dialog>
   );
